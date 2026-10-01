@@ -17,23 +17,23 @@ const INTRO_TEXT =
 const DETAILS = [
   {
     num: "01",
-    heading: "Du erstellst den Content.",
-    desc: "Stundenlanges manuelles Planen, Stylen, Shooten und Bearbeiten jedes einzelnen Assets.",
+    heading: "Content erstellen.",
+    desc: "Planen, shooten, schneiden – alles alleine.",
   },
   {
     num: "02",
-    heading: "Du beantwortest jede Nachricht.",
-    desc: "Rund um die Uhr über verschiedene Zeitzonen hinweg an dein Smartphone gefesselt, um immer dieselben Fragen zu beantworten.",
+    heading: "Jede Nachricht beantworten.",
+    desc: "24/7 am Handy, immer dieselben Fragen.",
   },
   {
     num: "03",
-    heading: "Du verwaltest mehrere Plattformen.",
-    desc: "Unterschiedliche Algorithmen, Paywalls und Vertriebskanäle jonglieren – ohne eine zentrale Schaltstelle.",
+    heading: "Mehrere Plattformen managen.",
+    desc: "Algorithmen, Paywalls, Kanäle – ohne System.",
   },
   {
     num: "04",
-    heading: "Und wertvolle Chancen gehen trotzdem verloren.",
-    desc: "Sobald Antwortzeiten sinken, entgehen dir hochpreisige digitale Käufe und Kooperationen.",
+    heading: "Chancen gehen verloren.",
+    desc: "Langsame Reaktion kostet Käufe und Deals.",
   },
 ];
 
@@ -82,32 +82,40 @@ function Word({ word, index, total, scrollYProgress }: WordProps) {
   );
 }
 
-// ─── Word-reveal paragraph (hooks-safe) ────────────────────────────────────
+// ─── Word-reveal — works for any element tag + style ─────────────────────
 
-function WordReveal({ text }: { text: string }) {
+interface WordRevealProps {
+  text: string;
+  as?: "p" | "h2";
+  style?: React.CSSProperties;
+  scrollOffset?: ["start 0.85" | "start 0.9" | "start 0.8", "end 0.3" | "end 0.35" | "end 0.55"];
+}
+
+function WordReveal({
+  text,
+  as: Tag = "p",
+  style: styleProp,
+  scrollOffset = ["start 0.85", "end 0.3"],
+}: WordRevealProps) {
   const prefersReduced = useReducedMotion();
-  const containerRef = useRef<HTMLParagraphElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start 0.9", "end 0.35"],
+    offset: scrollOffset,
   });
 
   const words = text.split(" ");
 
   if (prefersReduced) {
-    return (
-      <p style={introPStyle}>
-        {text}
-      </p>
-    );
+    return <Tag style={styleProp}>{text}</Tag>;
   }
 
   return (
-    <p
-      ref={containerRef}
+    <Tag
+      ref={containerRef as React.RefObject<HTMLHeadingElement & HTMLParagraphElement>}
       aria-label={text}
-      style={{ ...introPStyle, display: "block" }}
+      style={{ ...styleProp, display: "block" }}
     >
       {words.map((word, i) => (
         <React.Fragment key={i}>
@@ -120,7 +128,7 @@ function WordReveal({ text }: { text: string }) {
           {i < words.length - 1 ? " " : ""}
         </React.Fragment>
       ))}
-    </p>
+    </Tag>
   );
 }
 
@@ -252,10 +260,10 @@ export function ProblemSection() {
 
           {/* Right: headline + word-reveal paragraph */}
           <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-            <motion.h2
-              initial={{ opacity: 0, y: prefersReduced ? 0 : 20 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease, delay: 0.12 }}
+            <WordReveal
+              as="h2"
+              text="Immer noch alles alleine managen?"
+              scrollOffset={["start 0.9", "end 0.55"]}
               style={{
                 fontFamily: "Space Grotesk, sans-serif",
                 fontWeight: 500,
@@ -265,11 +273,13 @@ export function ProblemSection() {
                 color: "#F5F5F2",
                 margin: 0,
               }}
-            >
-              Immer noch alles alleine managen?
-            </motion.h2>
+            />
 
-            <WordReveal text={INTRO_TEXT} />
+            <WordReveal
+              text={INTRO_TEXT}
+              scrollOffset={["start 0.8", "end 0.3"]}
+              style={introPStyle}
+            />
           </div>
         </div>
       </div>
@@ -308,13 +318,18 @@ export function ProblemSection() {
             }}
           >
             {DETAILS.map((item, i) => (
-              <div key={item.num}>
+              <motion.div
+                key={item.num}
+                initial={{ opacity: 0, y: prefersReduced ? 0 : 18 }}
+                animate={columnsInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.55, ease, delay: 0.05 + i * 0.1 }}
+              >
                 <div
                   style={{
-                    padding: "clamp(0.9rem, 1.5vw, 1.25rem) 0",
+                    padding: "clamp(0.75rem, 1.2vw, 1rem) 0",
                     display: "flex",
                     flexDirection: "column",
-                    gap: "0.35rem",
+                    gap: "0.25rem",
                   }}
                 >
                   <span style={numStyle}>{item.num}</span>
@@ -324,7 +339,7 @@ export function ProblemSection() {
                 {i < DETAILS.length - 1 && (
                   <div style={{ height: "1px", background: "rgba(255,255,255,0.07)" }} />
                 )}
-              </div>
+              </motion.div>
             ))}
           </motion.div>
 
