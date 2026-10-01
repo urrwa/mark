@@ -3,7 +3,12 @@ import { motion, useReducedMotion } from "motion/react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const HEADLINE_LINES = ["DEIN TALENT.", "EIN STÄRKERES", "CREATOR-BUSINESS."];
+// Each line: array of {text, color} segments for mixed-color headline
+const HEADLINE_LINES: { text: string; color: string }[][] = [
+  [{ text: "Dein Talent.", color: "#F5F5F2" }],
+  [{ text: "Ein ", color: "#555" }, { text: "stärkeres", color: "#F5F5F2" }],
+  [{ text: "Creator", color: "#00D084" }, { text: "-Business.", color: "#F5F5F2" }],
+];
 
 export default function HeroSection() {
   const prefersReduced = useReducedMotion();
@@ -94,8 +99,8 @@ export default function HeroSection() {
 
           {/* Headline */}
           <h1 style={{ margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.05em" }}>
-            {HEADLINE_LINES.map((line, i) => (
-              <div key={line} style={{ overflow: "hidden", lineHeight: 1 }}>
+            {HEADLINE_LINES.map((segments, i) => (
+              <div key={i} style={{ overflow: "hidden", lineHeight: 1 }}>
                 <motion.span
                   initial={{ opacity: 0, y: prefersReduced ? 0 : "105%" }}
                   animate={ready ? { opacity: 1, y: "0%" } : {}}
@@ -103,15 +108,15 @@ export default function HeroSection() {
                   style={{
                     display: "block",
                     fontFamily: "Space Grotesk, sans-serif",
-                    fontWeight: 700,
+                    fontWeight: 550,
                     fontSize: "clamp(2.6rem, 7.5vw, 6.5rem)",
-                    letterSpacing: "-0.01em",
-                    lineHeight: 1.0,
-                    color: "#F5F5F2",
-                    textTransform: "uppercase",
+                    letterSpacing: "-0.025em",
+                    lineHeight: 1.05,
                   }}
                 >
-                  {line}
+                  {segments.map((seg, j) => (
+                    <span key={j} style={{ color: seg.color }}>{seg.text}</span>
+                  ))}
                 </motion.span>
               </div>
             ))}
