@@ -70,7 +70,7 @@ function Word({ word, index, total, scrollYProgress }: WordProps) {
   const start = Math.max(0, index * band - 0.05);
   const end = Math.min(1, (index + 1) * band + 0.05);
 
-  const color = useTransform(scrollYProgress, [start, end], ["#3d3d3d", "#F5F5F2"]);
+  const color = useTransform(scrollYProgress, [start, end], ["#cccccc", "#111111"]);
 
   return (
     <motion.span
@@ -138,7 +138,7 @@ const introPStyle: React.CSSProperties = {
   fontSize: "clamp(1.25rem, 2.2vw, 2rem)",
   lineHeight: 1.35,
   letterSpacing: "-0.015em",
-  color: "#F5F5F2",
+  color: "#111111",
   margin: 0,
 };
 
@@ -204,7 +204,7 @@ export function ProblemSection() {
       style={{
         position: "relative",
         zIndex: 10,
-        backgroundColor: "#050505",
+        backgroundColor: "#ffffff",
         width: "100%",
       }}
     >
@@ -239,7 +239,7 @@ export function ProblemSection() {
           transition={{ duration: 0.9, ease }}
           style={{
             height: "1px",
-            background: "rgba(255,255,255,0.10)",
+            background: "rgba(0,0,0,0.12)",
             transformOrigin: "left",
           }}
         />
@@ -270,7 +270,7 @@ export function ProblemSection() {
                 fontSize: "clamp(1.9rem, 3.8vw, 3.4rem)",
                 lineHeight: 1.12,
                 letterSpacing: "-0.025em",
-                color: "#F5F5F2",
+                color: "#111111",
                 margin: 0,
               }}
             />
@@ -310,7 +310,7 @@ export function ProblemSection() {
             animate={columnsInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.75, ease, delay: 0.05 }}
             style={{
-              backgroundColor: "#111417",
+              backgroundColor: "#f3f3f3",
               padding: "clamp(1.75rem, 2.5vw, 2.25rem)",
               display: "flex",
               flexDirection: "column",
@@ -337,7 +337,7 @@ export function ProblemSection() {
                   <span style={detailDescStyle}>{item.desc}</span>
                 </div>
                 {i < DETAILS.length - 1 && (
-                  <div style={{ height: "1px", background: "rgba(255,255,255,0.07)" }} />
+                  <div style={{ height: "1px", background: "rgba(0,0,0,0.08)" }} />
                 )}
               </motion.div>
             ))}
@@ -351,7 +351,7 @@ export function ProblemSection() {
             delay={0.15}
             inView={columnsInView}
             prefersReduced={prefersReduced}
-            bg="#0a0a0a"
+            bg="#e8e8e8"
           />
 
           {/* RIGHT: creator photo */}
@@ -376,7 +376,7 @@ export function ProblemSection() {
       >
         <div style={{ marginBottom: "1.5rem" }}>
           <span style={labelStyle}>Manueller Aufwand · 24/7 Postfach-Druck</span>
-          <div style={{ height: "1px", background: "rgba(255,255,255,0.08)", marginTop: "0.75rem" }} />
+          <div style={{ height: "1px", background: "rgba(0,0,0,0.08)", marginTop: "0.75rem" }} />
         </div>
 
         <div
@@ -393,7 +393,7 @@ export function ProblemSection() {
               style={{
                 padding: "1.5rem 1.5rem 1.5rem 0",
                 paddingLeft: i > 0 ? "1.5rem" : 0,
-                borderRight: i < WORKLOAD.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none",
+                borderRight: i < WORKLOAD.length - 1 ? "1px solid rgba(0,0,0,0.08)" : "none",
                 display: "flex",
                 flexDirection: "column",
                 gap: "0.4rem",
@@ -414,7 +414,7 @@ export function ProblemSection() {
           maxWidth: "1440px",
           margin: "0 auto",
           padding: "clamp(2rem,4vh,3rem) clamp(1.25rem,4vw,3rem) clamp(5rem,10vh,8rem)",
-          borderTop: "1px solid rgba(255,255,255,0.07)",
+          borderTop: "1px solid rgba(0,0,0,0.08)",
         }}
       >
         <motion.div
@@ -431,7 +431,7 @@ export function ProblemSection() {
               fontSize: "clamp(1.4rem, 3.2vw, 2.6rem)",
               lineHeight: 1.15,
               letterSpacing: "-0.02em",
-              color: "#6a6a6a",
+              color: "#555555",
               margin: 0,
             }}>
               „Du musst nicht härter arbeiten.
@@ -472,7 +472,7 @@ export function ProblemSection() {
           .workload-item {
             border-right: none !important;
             padding-left: 0 !important;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
             padding-bottom: 1.5rem;
           }
           .workload-item:last-child {
@@ -492,7 +492,7 @@ const labelStyle: React.CSSProperties = {
   fontSize: "0.65rem",
   letterSpacing: "0.18em",
   textTransform: "uppercase",
-  color: "#4a4a4a",
+  color: "#444444",
 };
 
 const numStyle: React.CSSProperties = {
@@ -507,7 +507,7 @@ const detailHeadStyle: React.CSSProperties = {
   fontFamily: "Space Grotesk, sans-serif",
   fontWeight: 500,
   fontSize: "clamp(0.9rem, 1.2vw, 1.1rem)",
-  color: "#F5F5F2",
+  color: "#111111",
   lineHeight: 1.3,
 };
 
@@ -515,7 +515,7 @@ const detailDescStyle: React.CSSProperties = {
   fontFamily: "Manrope, sans-serif",
   fontWeight: 400,
   fontSize: "clamp(0.78rem, 0.95vw, 0.88rem)",
-  color: "#787878",
+  color: "#666666",
   lineHeight: 1.65,
 };
 
@@ -523,7 +523,7 @@ const workloadHeadStyle: React.CSSProperties = {
   fontFamily: "Space Grotesk, sans-serif",
   fontWeight: 500,
   fontSize: "clamp(0.82rem, 1.1vw, 0.95rem)",
-  color: "#F5F5F2",
+  color: "#111111",
   lineHeight: 1.3,
 };
 
@@ -540,6 +540,6 @@ const workloadMsgStyle: React.CSSProperties = {
   fontFamily: "Manrope, sans-serif",
   fontWeight: 400,
   fontSize: "clamp(0.75rem, 0.95vw, 0.85rem)",
-  color: "#606060",
+  color: "#555555",
   lineHeight: 1.6,
 };
