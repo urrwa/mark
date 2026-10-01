@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   motion,
   useReducedMotion,
@@ -188,12 +188,70 @@ function ImagePanel({ src, alt, objectPosition = "center", delay, inView, prefer
 
 // ─── Main section ──────────────────────────────────────────────────────────
 
+// ─── Scroll-active detail item ────────────────────────────────────────────
+
+interface DetailItemProps {
+  item: typeof DETAILS[0];
+  index: number;
+  activeIndex: number;
+  total: number;
+}
+
+function DetailItem({ item, index, activeIndex }: DetailItemProps) {
+  const isActive = index === activeIndex;
+  return (
+    <div
+      style={{
+        padding: "clamp(1.2rem, 2vw, 1.75rem) 0",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.3rem",
+        transition: "opacity 0.35s ease",
+        opacity: isActive ? 1 : 0.35,
+        cursor: "default",
+      }}
+    >
+      <span style={{ ...numStyle, color: isActive ? "#00D084" : "#aaa" }}>{item.num}</span>
+      <span style={{
+        ...detailHeadStyle,
+        color: isActive ? "#111111" : "#777",
+        fontWeight: isActive ? 600 : 500,
+        fontSize: "clamp(1rem, 1.4vw, 1.2rem)",
+        transition: "color 0.35s ease, font-weight 0.35s ease",
+      }}>{item.heading}</span>
+      <span style={{
+        ...detailDescStyle,
+        color: isActive ? "#444" : "#999",
+        transition: "color 0.35s ease",
+      }}>{item.desc}</span>
+    </div>
+  );
+}
+
 export function ProblemSection() {
   const prefersReduced = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const headerInView = useInView(sectionRef, { once: true, margin: "-60px" });
   const columnsRef = useRef<HTMLDivElement>(null);
   const columnsInView = useInView(columnsRef, { once: true, margin: "-80px" });
+
+  // Scroll-linked active index for detail items
+  const [activeIndex, setActiveIndex] = useState(0);
+  const { scrollYProgress } = useScroll({
+    target: columnsRef,
+    offset: ["start 0.7", "end 0.3"],
+  });
+
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (v) => {
+      const idx = Math.min(
+        DETAILS.length - 1,
+        Math.floor(v * DETAILS.length)
+      );
+      setActiveIndex(Math.max(0, idx));
+    });
+    return unsubscribe;
+  }, [scrollYProgress]);
 
   return (
     <section
@@ -282,7 +340,8 @@ export function ProblemSection() {
         </div>
       </div>
 
-      {/* ── Three-column row ───────────────────────────────────────── */}
+      {/* ── Sticky scroll section ─────────────────────────────────── */}
+      {/* Tall scroll container — gives space for sticky effect */}
       <div
         ref={columnsRef}
         style={{
@@ -291,77 +350,74 @@ export function ProblemSection() {
           padding: "0 clamp(1.25rem,4vw,3rem) clamp(3.5rem,7vh,5rem)",
         }}
       >
-        <div
-          className="problem-columns"
+        <motion.div
+          initial={{ opacity: 0, y: prefersReduced ? 0 : 24 }}
+          animate={columnsInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease }}
+          className="problem-sticky-row"
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
+            gridTemplateColumns: "1fr 1fr",
             gap: "20px",
-            alignItems: "stretch",
-            // Row height driven by the text panel; images fill to match
-            gridAutoRows: "minmax(520px, auto)",
+            alignItems: "start",
           }}
         >
-          {/* LEFT: details panel */}
-          <motion.div
-            initial={{ opacity: 0, y: prefersReduced ? 0 : 24 }}
-            animate={columnsInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.75, ease, delay: 0.05 }}
+          {/* LEFT: details panel — sticky */}
+          <div
+            className="problem-sticky-left"
             style={{
+              position: "sticky",
+              top: "120px",
               backgroundColor: "#f3f3f3",
-              padding: "clamp(1.75rem, 2.5vw, 2.25rem)",
+              padding: "clamp(1.75rem, 2.5vw, 2.5rem)",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between",
             }}
           >
             {DETAILS.map((item, i) => (
-              <motion.div
-                key={item.num}
-                initial={{ opacity: 0, y: prefersReduced ? 0 : 18 }}
-                animate={columnsInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.55, ease, delay: 0.05 + i * 0.1 }}
-              >
-                <div
-                  style={{
-                    padding: "clamp(0.75rem, 1.2vw, 1rem) 0",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.25rem",
-                  }}
-                >
-                  <span style={numStyle}>{item.num}</span>
-                  <span style={detailHeadStyle}>{item.heading}</span>
-                  <span style={detailDescStyle}>{item.desc}</span>
-                </div>
+              <React.Fragment key={item.num}>
+                <DetailItem
+                  item={item}
+                  index={i}
+                  activeIndex={activeIndex}
+                  total={DETAILS.length}
+                />
                 {i < DETAILS.length - 1 && (
                   <div style={{ height: "1px", background: "rgba(0,0,0,0.08)" }} />
                 )}
-              </motion.div>
+              </React.Fragment>
             ))}
-          </motion.div>
+          </div>
 
-          {/* CENTER: timeline image */}
-          <ImagePanel
-            src="/photos/timeline.png"
-            alt="Video-Editing-Timeline – professionelle Content-Produktion"
-            objectPosition="center"
-            delay={0.15}
-            inView={columnsInView}
-            prefersReduced={prefersReduced}
-            bg="#e8e8e8"
-          />
-
-          {/* RIGHT: creator photo */}
-          <ImagePanel
-            src="/photos/collab-01.png"
-            alt="Creator am Arbeitsplatz – professionelle Produktionsumgebung"
-            objectPosition="center top"
-            delay={0.25}
-            inView={columnsInView}
-            prefersReduced={prefersReduced}
-          />
-        </div>
+          {/* RIGHT: timeline image — sticky */}
+          <div
+            className="problem-sticky-right"
+            style={{
+              position: "sticky",
+              top: "120px",
+              overflow: "hidden",
+              backgroundColor: "#e8e8e8",
+              aspectRatio: "4/5",
+            }}
+          >
+            <motion.img
+              src="/photos/timeline.png"
+              alt="Video-Editing-Timeline – professionelle Content-Produktion"
+              initial={{ scale: prefersReduced ? 1 : 1.04 }}
+              animate={columnsInView ? { scale: 1 } : {}}
+              transition={{ duration: 1.1, ease }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center",
+                display: "block",
+              }}
+            />
+          </div>
+        </motion.div>
       </div>
 
 
@@ -373,24 +429,17 @@ export function ProblemSection() {
           .problem-intro-grid > div[aria-hidden] {
             display: none !important;
           }
-          .problem-columns {
-            grid-template-columns: 1fr !important;
-            grid-auto-rows: auto !important;
-          }
-          .problem-columns > div {
-            min-height: 280px;
-          }
-          .workload-grid {
+          .problem-sticky-row {
             grid-template-columns: 1fr !important;
           }
-          .workload-item {
-            border-right: none !important;
-            padding-left: 0 !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08);
-            padding-bottom: 1.5rem;
+          .problem-sticky-left,
+          .problem-sticky-right {
+            position: relative !important;
+            top: auto !important;
           }
-          .workload-item:last-child {
-            border-bottom: none;
+          .problem-sticky-right {
+            aspect-ratio: 16/9 !important;
+            min-height: 240px;
           }
         }
       `}</style>
