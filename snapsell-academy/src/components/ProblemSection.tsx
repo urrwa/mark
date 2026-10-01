@@ -264,9 +264,9 @@ export function ProblemSection() {
             className="problem-columns"
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
+              gridTemplateColumns: "1.1fr 1fr 1fr",
               gap: "clamp(0.75rem, 1.5vw, 1.25rem)",
-              alignItems: "start",
+              alignItems: "stretch",
             }}
           >
             {/* LEFT: details panel */}
@@ -333,16 +333,16 @@ export function ProblemSection() {
               style={{
                 backgroundColor: "#0d0d0d",
                 overflow: "hidden",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: "280px",
+                position: "relative",
+                minHeight: "320px",
               }}
             >
               <img
                 src="/photos/timeline.png"
                 alt="Video-Editing Timeline – professionelle Content-Produktion"
                 style={{
+                  position: "absolute",
+                  inset: 0,
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
@@ -359,17 +359,20 @@ export function ProblemSection() {
               transition={{ duration: 0.75, ease, delay: 0.3 }}
               style={{
                 overflow: "hidden",
-                minHeight: "280px",
+                position: "relative",
+                minHeight: "320px",
               }}
             >
               <img
                 src="/photos/collab-01.png"
                 alt="Creator am Arbeitsplatz – professionelle Produktionsumgebung"
                 style={{
+                  position: "absolute",
+                  inset: 0,
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  objectPosition: "center",
+                  objectPosition: "center top",
                   display: "block",
                 }}
               />
