@@ -198,9 +198,6 @@ export function ProblemSection() {
         zIndex: 10,
         backgroundColor: "#050505",
         width: "100%",
-        // Negative top margin pulls section up over the hero
-        marginTop: "-6rem",
-        paddingTop: "6rem",
       }}
     >
       {/* ── Section header ─────────────────────────────────────────── */}
