@@ -36,7 +36,7 @@ export function MeetMarkSection() {
       style={{
         position: "relative",
         zIndex: 10,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#0a0a0a",
         width: "100%",
         paddingBottom: "clamp(4rem, 8vh, 7rem)",
       }}
@@ -60,7 +60,7 @@ export function MeetMarkSection() {
           <span style={labelStyle}>(LERNE MARK KENNEN)</span>
           <span style={{ ...labelStyle, fontFamily: "Space Grotesk, sans-serif", fontWeight: 600 }}>03</span>
         </div>
-        <div style={{ height: "1px", background: "rgba(0,0,0,0.12)", marginBottom: "clamp(2rem,4vh,3.5rem)" }} />
+        <div style={{ height: "1px", background: "rgba(255,255,255,0.1)", marginBottom: "clamp(2rem,4vh,3.5rem)" }} />
 
         {/* Active label */}
         <div style={{ textAlign: "center", marginBottom: "clamp(1.5rem,3vh,2.5rem)" }}>
@@ -115,7 +115,7 @@ export function MeetMarkSection() {
           />
           <div style={{
             position: "absolute", inset: 0,
-            background: "linear-gradient(to right, rgba(255,255,255,0.3) 0%, transparent 70%)",
+            background: "linear-gradient(to right, rgba(10,10,10,0.5) 0%, transparent 70%)",
             pointerEvents: "none",
           }} />
         </motion.div>
@@ -166,7 +166,7 @@ export function MeetMarkSection() {
           />
           <div style={{
             position: "absolute", inset: 0,
-            background: "linear-gradient(to left, rgba(255,255,255,0.3) 0%, transparent 70%)",
+            background: "linear-gradient(to left, rgba(10,10,10,0.5) 0%, transparent 70%)",
             pointerEvents: "none",
           }} />
         </motion.div>
@@ -183,7 +183,7 @@ export function MeetMarkSection() {
               width: i === active ? "28px" : "8px",
               height: "8px",
               borderRadius: "4px",
-              background: i === active ? "#00D084" : "#ccc",
+              background: i === active ? "#00D084" : "#444",
               border: "none",
               cursor: "pointer",
               transition: "all 0.35s ease",
@@ -225,7 +225,7 @@ const labelStyle: React.CSSProperties = {
   fontSize: "0.65rem",
   letterSpacing: "0.18em",
   textTransform: "uppercase",
-  color: "#444444",
+  color: "#888888",
 };
 
 const numStyle: React.CSSProperties = {
@@ -240,7 +240,7 @@ const roleStyle: React.CSSProperties = {
   fontFamily: "Space Grotesk, sans-serif",
   fontWeight: 600,
   fontSize: "clamp(1.6rem, 3.5vw, 3rem)",
-  color: "#111111",
+  color: "#ffffff",
   letterSpacing: "-0.02em",
   lineHeight: 1,
 };
@@ -250,6 +250,6 @@ const bioStyle: React.CSSProperties = {
   fontWeight: 400,
   fontSize: "clamp(0.95rem, 1.3vw, 1.1rem)",
   lineHeight: 1.75,
-  color: "#555555",
+  color: "#aaaaaa",
   margin: 0,
 };
