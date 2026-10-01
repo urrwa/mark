@@ -1,0 +1,8 @@
+{
+  "name": "German Mark Aurel × SnapSell Academy",
+  "description": "Tritt Mark Aurels SnapSell Academy bei und erfahre, wie du erstklassigen Content mit KI erstellst, wiederkehrende Konversationen automatisierst und digitale Inhalte direkt über SnapSell verkaufst.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
