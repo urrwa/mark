@@ -109,7 +109,7 @@ const PartnershipSection: React.FC = () => {
             marginBottom: '2rem',
           }}
         >
-          (04) SNAPSELL TECHNOLOGIE
+          (05) SNAPSELL TECHNOLOGIE
         </motion.p>
 
         <motion.h2

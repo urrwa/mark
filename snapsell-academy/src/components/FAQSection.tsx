@@ -30,7 +30,7 @@ export function FAQSection() {
           marginBottom: '3rem',
         }}
       >
-        (06) FAQ
+        (07) FAQ
       </motion.p>
 
       <motion.h2

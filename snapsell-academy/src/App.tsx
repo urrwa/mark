@@ -27,8 +27,8 @@ export default function App() {
           <Navigation />
           <main id="main-content">
             <HeroSection />
-            <MeetMarkSection />
             <ProblemSection />
+            <MeetMarkSection />
             <ThreePillarsSection />
             <PartnershipSection />
             <ProfessionalProductionsSection />

@@ -152,7 +152,7 @@ const ApplicationFormSection: React.FC = () => {
               marginBottom: '2rem',
             }}
           >
-            (07) BEWERBUNG
+            (08) BEWERBUNG
           </motion.p>
 
           <motion.h2

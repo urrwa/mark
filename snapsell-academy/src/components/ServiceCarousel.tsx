@@ -98,7 +98,7 @@ export default function ServiceCarousel() {
           textTransform: "uppercase",
         }}
       >
-        (02) LEISTUNGEN
+        (03) LEISTUNGEN
       </p>
 
       {/* Carousel region */}

@@ -52,7 +52,7 @@ export function MeetMarkSection() {
             className="text-xs font-medium uppercase tracking-[0.22em]"
             style={{ color: '#A5A5A5', fontFamily: 'Manrope, sans-serif' }}
           >
-            (02) Über Mark
+            (03) Über Mark
           </p>
 
           {/* Headline */}

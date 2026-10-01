@@ -32,7 +32,7 @@ export function ProfessionalProductionsSection() {
           marginBottom: '3rem',
         }}
       >
-        (05) PRODUKTION
+        (06) PRODUKTION
       </motion.p>
 
       {/* Headline */}
