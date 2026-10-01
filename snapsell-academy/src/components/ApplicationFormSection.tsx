@@ -1,504 +1,457 @@
-import React, { useState, useEffect } from 'react';
-import { ShieldCheck, CheckCircle2, AlertCircle, Loader2, ArrowRight, UserCheck, Sparkles } from 'lucide-react';
-import { CREATOR_STAGES, MAIN_GOALS, INTERNATIONAL_OPTIONS, trackEvent } from '../data/academyData';
-import { ApplicationFormData, TrackingParams } from '../types';
+import React, { useState, useRef, ChangeEvent, FormEvent } from 'react';
+import { motion } from 'motion/react';
+import { FORM_ENDPOINT } from '../data/agencyData';
 
-interface ApplicationFormSectionProps {
-  onOpenPrivacy?: () => void;
+type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
+
+interface FormState {
+  name: string;
+  email: string;
+  instagram: string;
+  level: string;
+  goal: string;
+  ageConfirmed: boolean;
+  privacyConfirmed: boolean;
+  website: string;
 }
 
-export const ApplicationFormSection: React.FC<ApplicationFormSectionProps> = ({ onOpenPrivacy }) => {
-  const [formData, setFormData] = useState<ApplicationFormData>({
-    firstName: '',
-    email: '',
-    socialHandle: '',
-    creatorStage: '',
-    contentType: '',
-    mainGoal: '',
-    internationalInterest: 'Yes',
-    isEighteenPlus: false,
-    privacyConsent: false
+const initialForm: FormState = {
+  name: '',
+  email: '',
+  instagram: '',
+  level: '',
+  goal: '',
+  ageConfirmed: false,
+  privacyConfirmed: false,
+  website: '',
+};
+
+const inputBase: React.CSSProperties = {
+  width: '100%',
+  backgroundColor: '#111417',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: '6px',
+  padding: '0.85rem 1rem',
+  color: '#F5F5F2',
+  fontFamily: "'Manrope', sans-serif",
+  fontSize: '0.95rem',
+  outline: 'none',
+  transition: 'border-color 0.2s ease',
+  appearance: 'none',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: "'Manrope', sans-serif",
+  fontWeight: 500,
+  fontSize: '0.85rem',
+  color: '#A5A5A5',
+  marginBottom: '0.5rem',
+  letterSpacing: '0.02em',
+};
+
+interface FieldProps {
+  label: string;
+  children: React.ReactNode;
+}
+
+const Field: React.FC<FieldProps> = ({ label, children }) => (
+  <div>
+    <label style={labelStyle}>{label}</label>
+    {children}
+  </div>
+);
+
+const ApplicationFormSection: React.FC = () => {
+  const [form, setForm] = useState<FormState>(initialForm);
+  const [status, setStatus] = useState<FormStatus>('idle');
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const submittingRef = useRef(false);
+  const isPreview = !FORM_ENDPOINT;
+
+  const borderFor = (field: string): React.CSSProperties => ({
+    borderColor: focusedField === field ? '#00D084' : 'rgba(255,255,255,0.1)',
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [honeypot, setHoneypot] = useState<string>(''); // anti-bot field
-  const [trackingParams, setTrackingParams] = useState<TrackingParams>({
-    landingPageVersion: '1.0.0-pro',
-    timestamp: new Date().toISOString()
-  });
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      setTrackingParams({
-        utm_source: urlParams.get('utm_source') || 'direct',
-        utm_medium: urlParams.get('utm_medium') || 'web',
-        utm_campaign: urlParams.get('utm_campaign') || 'academy_launch',
-        utm_content: urlParams.get('utm_content') || 'main_cta',
-        referrer: document.referrer || 'direct',
-        landingPageVersion: '1.0.0-pro',
-        timestamp: new Date().toISOString()
-      });
-    }
-  }, []);
-
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'Vorname ist erforderlich.';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'E-Mail-Adresse ist erforderlich.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Bitte gib eine gültige E-Mail-Adresse ein.';
-    }
-
-    if (!formData.socialHandle.trim()) {
-      newErrors.socialHandle = 'Dein Social-Media-Handle oder Portfolio-Link ist erforderlich.';
-    }
-
-    if (!formData.creatorStage) {
-      newErrors.creatorStage = 'Bitte wähle deinen aktuellen Creator-Status aus.';
-    }
-
-    if (!formData.contentType.trim()) {
-      newErrors.contentType = 'Bitte gib deinen primären Content-Bereich an.';
-    }
-
-    if (!formData.mainGoal) {
-      newErrors.mainGoal = 'Bitte wähle dein geschäftliches Hauptziel aus.';
-    }
-
-    if (!formData.isEighteenPlus) {
-      newErrors.isEighteenPlus = 'Du musst bestätigen, dass du mindestens 18 Jahre alt bist.';
-    }
-
-    if (!formData.privacyConsent) {
-      newErrors.privacyConsent = 'Du musst den Datenschutzbestimmungen zustimmen, um deine Bewerbung abzuschicken.';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-
-    // Clear error for that field immediately upon user typing/selecting
-    if (errors[name]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[name];
-        return next;
-      });
+    if (type === 'checkbox') {
+      setForm((prev) => ({
+        ...prev,
+        [name]: (e.target as HTMLInputElement).checked,
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
     }
-
-    trackEvent('Application Form Field Edited', { field: name });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Bot trap detection
-    if (honeypot) {
-      console.warn('Spam submission intercepted.');
+    if (form.website.trim() !== '') {
       return;
     }
 
-    if (!validate()) {
-      trackEvent('Application Form Error', { errors });
+    if (submittingRef.current) return;
+
+    if (isPreview) {
+      setStatus('success');
       return;
     }
 
-    setIsSubmitting(true);
-    trackEvent('Application Form Started', { stage: formData.creatorStage, goal: formData.mainGoal });
+    submittingRef.current = true;
+    setStatus('submitting');
 
     try {
-      // Simulate real CRM/Webhook dispatch with UTM tracking & safety payload
       const payload = {
-        applicant: formData,
-        tracking: trackingParams,
-        sourceUrl: window.location.href,
-        submittedAt: new Date().toISOString()
+        name: form.name,
+        email: form.email,
+        instagram: form.instagram,
+        level: form.level,
+        goal: form.goal,
       };
 
-      // Simulated network latency
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      const res = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-      console.log('[SnapSell Academy CRM Submission Payload]', payload);
-      setIsSubmitted(true);
-      trackEvent('Application Form Completed', { applicantEmail: formData.email });
-    } catch (err) {
-      console.error('Submission error:', err);
-      setErrors({ form: 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.' });
-    } finally {
-      setIsSubmitting(false);
+      if (!res.ok) throw new Error('Server error');
+      setStatus('success');
+    } catch {
+      setStatus('error');
+      submittingRef.current = false;
     }
   };
 
   return (
     <section
-      id="apply"
-      className="relative py-24 sm:py-32 bg-[#101310] border-t border-[#171B18] overflow-hidden"
+      id="bewerbung"
+      style={{
+        backgroundColor: '#050505',
+        scrollMarginTop: '80px',
+      }}
     >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#171B18] border border-[#00C875]/30 text-[#00C875] text-xs font-semibold tracking-wider uppercase mb-4">
-            <UserCheck className="w-3.5 h-3.5 text-[#00C875]" />
-            ACADEMY-BEWERBUNG
-          </div>
+      <div className="px-6 md:px-12 lg:px-20 py-24 md:py-32">
+        <div className="max-w-2xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontWeight: 500,
+              fontSize: '0.78rem',
+              color: '#A5A5A5',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              marginBottom: '2rem',
+            }}
+          >
+            (07) BEWERBUNG
+          </motion.p>
 
-          <h2 className="font-heading text-3xl sm:text-5xl font-bold text-[#F4F7F5] tracking-tight leading-[1.05] mb-4">
-            FÜR ACADEMY-ZUGANG BEWERBEN
-          </h2>
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 700,
+              fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+              color: '#ffffff',
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+              marginBottom: '1.25rem',
+            }}
+          >
+            Bereit für den nächsten Schritt?
+          </motion.h2>
 
-          <p className="text-base text-[#99A49F] leading-relaxed">
-            Teile uns mit, wo du aktuell stehst und was du aufbauen möchtest. Jede Bewerbung wird individuell geprüft.
-          </p>
-        </div>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontWeight: 400,
+              fontSize: '1rem',
+              color: '#A5A5A5',
+              lineHeight: 1.65,
+              marginBottom: '3rem',
+            }}
+          >
+            Bewirb dich jetzt für die Mark Aurel Creator Agency.
+          </motion.p>
 
-        {/* The Form or Success State Box */}
-        <div className="rounded-3xl bg-[#050706] border-2 border-[#171B18] p-6 sm:p-10 shadow-2xl relative">
-          
-          {isSubmitted ? (
-            /* Success State */
-            <div className="py-12 px-4 text-center space-y-6">
-              <div className="w-16 h-16 rounded-full bg-[#00C875]/20 border-2 border-[#00C875] flex items-center justify-center mx-auto text-[#00C875]">
-                <CheckCircle2 className="w-8 h-8" />
-              </div>
-
-              <div className="space-y-2">
-                <span className="text-xs font-heading font-bold text-[#00C875] uppercase tracking-widest">
-                  Bewerbungsbestätigung
-                </span>
-                <h3 className="font-heading text-2xl sm:text-3xl font-bold text-[#F4F7F5]">
-                  DEINE BEWERBUNG WURDE ERFOLGREICH ÜBERMITTELT
-                </h3>
-              </div>
-
-              <p className="text-sm sm:text-base text-[#99A49F] max-w-lg mx-auto leading-relaxed">
-                Vielen Dank für deine Bewerbung bei Mark Aurels SnapSell Academy. Deine Angaben werden sorgfältig geprüft, und unser Team meldet sich bei dir, wenn dein Profil zu den verfügbaren Programmen oder Creator-Möglichkeiten passt.
+          {status === 'success' ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+              style={{
+                backgroundColor: '#111417',
+                border: '1px solid rgba(0,208,132,0.3)',
+                borderRadius: '10px',
+                padding: '2.5rem',
+                textAlign: 'center',
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontWeight: 700,
+                  fontSize: '1.5rem',
+                  color: '#00D084',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                Bewerbung eingegangen ✓
               </p>
-
-              <div className="p-4 rounded-xl bg-[#101310] border border-[#171B18] max-w-md mx-auto text-left text-xs text-[#99A49F] space-y-1">
-                <div><strong className="text-[#F4F7F5]">Bewerber:</strong> {formData.firstName} ({formData.email})</div>
-                <div><strong className="text-[#F4F7F5]">Status:</strong> {formData.creatorStage}</div>
-                <div><strong className="text-[#F4F7F5]">Hauptziel:</strong> {formData.mainGoal}</div>
-                <div><strong className="text-[#F4F7F5]">Tracking-Referenz:</strong> {trackingParams.utm_source} • {trackingParams.utm_campaign}</div>
-              </div>
-
-              <div className="pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsSubmitted(false)}
-                  className="text-xs text-[#00C875] hover:underline font-semibold cursor-pointer"
-                >
-                  Eine weitere Anfrage senden oder Angaben bearbeiten
-                </button>
-              </div>
-            </div>
+              <p
+                style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontSize: '0.95rem',
+                  color: '#A5A5A5',
+                }}
+              >
+                {isPreview
+                  ? 'Wir melden uns in Kürze bei dir. (Vorschau-Modus)'
+                  : 'Wir melden uns in Kürze bei dir.'}
+              </p>
+            </motion.div>
           ) : (
-            /* Application Form */
-            <form onSubmit={handleSubmit} noValidate className="space-y-6">
-              
-              {/* Honeypot Spam Protection (Hidden) */}
-              <input
-                type="text"
-                name="website_honeypot"
-                value={honeypot}
-                onChange={(e) => setHoneypot(e.target.value)}
-                className="hidden"
-                tabIndex={-1}
-                autoComplete="off"
-              />
+            <motion.form
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.25 }}
+              onSubmit={handleSubmit}
+              noValidate
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <input
+                  type="text"
+                  name="website"
+                  value={form.website}
+                  onChange={handleChange}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  autoComplete="off"
+                  style={{ display: 'none' }}
+                />
 
-              {/* Form General Error Alert */}
-              {errors.form && (
-                <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-300 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{errors.form}</span>
-                </div>
-              )}
-
-              {/* Row 1: First Name & Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="firstName" className="block text-xs font-semibold text-[#F4F7F5] uppercase tracking-wider mb-2">
-                    Vorname <span className="text-[#00C875]">*</span>
-                  </label>
+                <Field label="Name">
                   <input
-                    id="firstName"
-                    name="firstName"
                     type="text"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="z. B. Elena"
-                    className={`w-full bg-[#101310] rounded-xl px-4 py-3.5 text-sm text-[#F4F7F5] border transition-colors outline-none focus:border-[#00C875] ${
-                      errors.firstName ? 'border-rose-500' : 'border-[#171B18]'
-                    }`}
+                    name="name"
+                    required
+                    value={form.name}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('name')}
+                    onBlur={() => setFocusedField(null)}
+                    placeholder="Dein vollständiger Name"
+                    style={{ ...inputBase, ...borderFor('name') }}
                   />
-                  {errors.firstName && (
-                    <p className="mt-1.5 text-xs text-rose-400 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" /> {errors.firstName}
-                    </p>
-                  )}
-                </div>
+                </Field>
 
-                <div>
-                  <label htmlFor="email" className="block text-xs font-semibold text-[#F4F7F5] uppercase tracking-wider mb-2">
-                    E-Mail-Adresse <span className="text-[#00C875]">*</span>
-                  </label>
+                <Field label="E-Mail">
                   <input
-                    id="email"
-                    name="email"
                     type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="elena@beispiel.de"
-                    className={`w-full bg-[#101310] rounded-xl px-4 py-3.5 text-sm text-[#F4F7F5] border transition-colors outline-none focus:border-[#00C875] ${
-                      errors.email ? 'border-rose-500' : 'border-[#171B18]'
-                    }`}
+                    name="email"
+                    required
+                    value={form.email}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('email')}
+                    onBlur={() => setFocusedField(null)}
+                    placeholder="deine@email.com"
+                    style={{ ...inputBase, ...borderFor('email') }}
                   />
-                  {errors.email && (
-                    <p className="mt-1.5 text-xs text-rose-400 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" /> {errors.email}
-                    </p>
-                  )}
-                </div>
-              </div>
+                </Field>
 
-              {/* Row 2: Social Media Handle & Primary Content Type */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="socialHandle" className="block text-xs font-semibold text-[#F4F7F5] uppercase tracking-wider mb-2">
-                    Social-Media-Handle oder Profillink <span className="text-[#00C875]">*</span>
-                  </label>
+                <Field label="Instagram Handle">
                   <input
-                    id="socialHandle"
-                    name="socialHandle"
                     type="text"
-                    value={formData.socialHandle}
-                    onChange={handleInputChange}
-                    placeholder="@handle oder Profil-URL"
-                    className={`w-full bg-[#101310] rounded-xl px-4 py-3.5 text-sm text-[#F4F7F5] border transition-colors outline-none focus:border-[#00C875] ${
-                      errors.socialHandle ? 'border-rose-500' : 'border-[#171B18]'
-                    }`}
+                    name="instagram"
+                    required
+                    value={form.instagram}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('instagram')}
+                    onBlur={() => setFocusedField(null)}
+                    placeholder="@dein_profil"
+                    style={{ ...inputBase, ...borderFor('instagram') }}
                   />
-                  {errors.socialHandle && (
-                    <p className="mt-1.5 text-xs text-rose-400 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" /> {errors.socialHandle}
-                    </p>
-                  )}
-                </div>
+                </Field>
 
-                <div>
-                  <label htmlFor="contentType" className="block text-xs font-semibold text-[#F4F7F5] uppercase tracking-wider mb-2">
-                    Content-Bereich / Art des Contents <span className="text-[#00C875]">*</span>
-                  </label>
-                  <input
-                    id="contentType"
-                    name="contentType"
-                    type="text"
-                    value={formData.contentType}
-                    onChange={handleInputChange}
-                    placeholder="z. B. Lifestyle, Fitness, Modeling, Performance"
-                    className={`w-full bg-[#101310] rounded-xl px-4 py-3.5 text-sm text-[#F4F7F5] border transition-colors outline-none focus:border-[#00C875] ${
-                      errors.contentType ? 'border-rose-500' : 'border-[#171B18]'
-                    }`}
-                  />
-                  {errors.contentType && (
-                    <p className="mt-1.5 text-xs text-rose-400 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" /> {errors.contentType}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Row 3: Current Creator Stage Dropdown */}
-              <div>
-                <label htmlFor="creatorStage" className="block text-xs font-semibold text-[#F4F7F5] uppercase tracking-wider mb-2">
-                  Aktueller Creator-Status <span className="text-[#00C875]">*</span>
-                </label>
-                <select
-                  id="creatorStage"
-                  name="creatorStage"
-                  value={formData.creatorStage}
-                  onChange={handleInputChange}
-                  className={`w-full bg-[#101310] rounded-xl px-4 py-3.5 text-sm text-[#F4F7F5] border transition-colors outline-none focus:border-[#00C875] ${
-                    errors.creatorStage ? 'border-rose-500' : 'border-[#171B18]'
-                  }`}
-                >
-                  <option value="" disabled>Wähle deinen aktuellen Status...</option>
-                  {CREATOR_STAGES.map((stage, idx) => (
-                    <option key={idx} value={stage}>
-                      {stage}
-                    </option>
-                  ))}
-                </select>
-                {errors.creatorStage && (
-                  <p className="mt-1.5 text-xs text-rose-400 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> {errors.creatorStage}
-                  </p>
-                )}
-              </div>
-
-              {/* Row 4: Main Business Goal Dropdown */}
-              <div>
-                <label htmlFor="mainGoal" className="block text-xs font-semibold text-[#F4F7F5] uppercase tracking-wider mb-2">
-                  Geschäftliches Hauptziel <span className="text-[#00C875]">*</span>
-                </label>
-                <select
-                  id="mainGoal"
-                  name="mainGoal"
-                  value={formData.mainGoal}
-                  onChange={handleInputChange}
-                  className={`w-full bg-[#101310] rounded-xl px-4 py-3.5 text-sm text-[#F4F7F5] border transition-colors outline-none focus:border-[#00C875] ${
-                    errors.mainGoal ? 'border-rose-500' : 'border-[#171B18]'
-                  }`}
-                >
-                  <option value="" disabled>Wähle dein primäres Ziel...</option>
-                  {MAIN_GOALS.map((goal, idx) => (
-                    <option key={idx} value={goal}>
-                      {goal}
-                    </option>
-                  ))}
-                </select>
-                {errors.mainGoal && (
-                  <p className="mt-1.5 text-xs text-rose-400 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> {errors.mainGoal}
-                  </p>
-                )}
-              </div>
-
-              {/* Row 5: International Production Interest */}
-              <div>
-                <label className="block text-xs font-semibold text-[#F4F7F5] uppercase tracking-wider mb-2">
-                  Möchtest du für ausgewählte internationale Produktionen berücksichtigt werden?
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {INTERNATIONAL_OPTIONS.map((opt) => (
-                    <label
-                      key={opt.value}
-                      className={`p-3.5 rounded-xl border flex items-center gap-2.5 cursor-pointer text-xs transition-colors ${
-                        formData.internationalInterest === opt.value
-                          ? 'bg-[#171B18] border-[#00C875] text-[#F4F7F5]'
-                          : 'bg-[#101310] border-[#171B18] text-[#99A49F] hover:text-[#F4F7F5]'
-                      }`}
+                <Field label="Wo bist du aktuell?">
+                  <div style={{ position: 'relative' }}>
+                    <select
+                      name="level"
+                      required
+                      value={form.level}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField('level')}
+                      onBlur={() => setFocusedField(null)}
+                      style={{
+                        ...inputBase,
+                        ...borderFor('level'),
+                        color: form.level ? '#F5F5F2' : '#A5A5A5',
+                        cursor: 'pointer',
+                        paddingRight: '2.5rem',
+                      }}
                     >
-                      <input
-                        type="radio"
-                        name="internationalInterest"
-                        value={opt.value}
-                        checked={formData.internationalInterest === opt.value}
-                        onChange={handleInputChange}
-                        className="accent-[#00C875]"
-                      />
-                      <span>{opt.label}</span>
+                      <option value="" disabled>
+                        Bitte wählen
+                      </option>
+                      <option value="anfaenger">Anfänger</option>
+                      <option value="wachstumsphase">Wachstumsphase</option>
+                      <option value="etabliert">Etabliert</option>
+                    </select>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        right: '1rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        pointerEvents: 'none',
+                        color: '#A5A5A5',
+                        fontSize: '0.75rem',
+                      }}
+                    >
+                      ▾
+                    </div>
+                  </div>
+                </Field>
+
+                <Field label="Was ist dein größtes Ziel als Creator?">
+                  <textarea
+                    name="goal"
+                    required
+                    rows={4}
+                    value={form.goal}
+                    onChange={handleChange}
+                    onFocus={() => setFocusedField('goal')}
+                    onBlur={() => setFocusedField(null)}
+                    placeholder="Beschreibe dein Ziel..."
+                    style={{
+                      ...inputBase,
+                      ...borderFor('goal'),
+                      resize: 'vertical',
+                      minHeight: '120px',
+                    }}
+                  />
+                </Field>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {[
+                    {
+                      name: 'ageConfirmed',
+                      checked: form.ageConfirmed,
+                      label: 'Ich bin 18 Jahre oder älter',
+                    },
+                    {
+                      name: 'privacyConfirmed',
+                      checked: form.privacyConfirmed,
+                      label: 'Ich stimme der Datenschutzerklärung zu',
+                    },
+                  ].map(({ name, checked, label }) => (
+                    <label
+                      key={name}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '0.75rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ position: 'relative', flexShrink: 0, marginTop: '2px' }}>
+                        <input
+                          type="checkbox"
+                          name={name}
+                          required
+                          checked={checked}
+                          onChange={handleChange}
+                          style={{
+                            width: '18px',
+                            height: '18px',
+                            accentColor: '#00D084',
+                            cursor: 'pointer',
+                            borderRadius: '3px',
+                          }}
+                        />
+                      </div>
+                      <span
+                        style={{
+                          fontFamily: "'Manrope', sans-serif",
+                          fontSize: '0.9rem',
+                          color: '#A5A5A5',
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {label}
+                      </span>
                     </label>
                   ))}
                 </div>
-              </div>
 
-              {/* Mandatory Checkboxes */}
-              <div className="pt-2 space-y-3 border-t border-[#171B18]">
-                {/* 18+ Confirmation */}
-                <div>
-                  <label className="flex items-start gap-3 cursor-pointer text-xs text-[#99A49F]">
-                    <input
-                      type="checkbox"
-                      name="isEighteenPlus"
-                      checked={formData.isEighteenPlus}
-                      onChange={handleInputChange}
-                      className="mt-0.5 accent-[#00C875] w-4 h-4 rounded-xs cursor-pointer"
-                    />
-                    <span>
-                      <strong className="text-[#F4F7F5]">Altersbestätigung:</strong> Ich bestätige, dass ich mindestens 18 Jahre alt bin. <span className="text-[#00C875]">*</span>
-                    </span>
-                  </label>
-                  {errors.isEighteenPlus && (
-                    <p className="mt-1 ml-7 text-xs text-rose-400 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" /> {errors.isEighteenPlus}
-                    </p>
-                  )}
-                </div>
+                {status === 'error' && (
+                  <p
+                    style={{
+                      fontFamily: "'Manrope', sans-serif",
+                      fontSize: '0.875rem',
+                      color: '#ff6b6b',
+                    }}
+                  >
+                    Bitte versuche es später erneut.
+                  </p>
+                )}
 
-                {/* Privacy Policy Consent */}
-                <div>
-                  <label className="flex items-start gap-3 cursor-pointer text-xs text-[#99A49F]">
-                    <input
-                      type="checkbox"
-                      name="privacyConsent"
-                      checked={formData.privacyConsent}
-                      onChange={handleInputChange}
-                      className="mt-0.5 accent-[#00C875] w-4 h-4 rounded-xs cursor-pointer"
-                    />
-                    <span>
-                      Ich stimme der Verarbeitung meiner Bewerbungsdaten gemäß der{' '}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (onOpenPrivacy) onOpenPrivacy();
-                        }}
-                        className="text-[#00C875] underline hover:text-[#24E68A]"
-                      >
-                        Datenschutzerklärung
-                      </button>
-                      {' '}zu. <span className="text-[#00C875]">*</span>
-                    </span>
-                  </label>
-                  {errors.privacyConsent && (
-                    <p className="mt-1 ml-7 text-xs text-rose-400 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" /> {errors.privacyConsent}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Primary Form Button */}
-              <div className="pt-4">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 px-8 bg-[#00C875] hover:bg-[#24E68A] text-[#050706] font-heading font-bold text-sm tracking-wider uppercase rounded-full shadow-lg shadow-[#00C875]/25 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={status === 'submitting'}
+                  style={{
+                    width: '100%',
+                    backgroundColor: status === 'submitting' ? 'rgba(0,208,132,0.6)' : '#00D084',
+                    color: '#050505',
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    letterSpacing: '0.02em',
+                    padding: '1rem 2rem',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: status === 'submitting' ? 'not-allowed' : 'pointer',
+                    transition: 'background-color 0.2s ease, opacity 0.2s ease',
+                    marginTop: '0.5rem',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (status !== 'submitting') {
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                        '#00bb75';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (status !== 'submitting') {
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                        '#00D084';
+                    }
+                  }}
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>BEWERBUNG WIRD ÜBERMITTELT...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>JETZT BEWERBEN</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
+                  {status === 'submitting' ? 'Wird gesendet…' : 'Jetzt bewerben'}
                 </button>
               </div>
-
-              {/* Form Disclosure Permanently Visible */}
-              <div className="pt-2 text-[11px] text-[#99A49F] text-center leading-relaxed">
-                Bewerbungen werden individuell geprüft. Der Zugang zur Academy, professionelle Produktionen, internationale Reisen und weitere Möglichkeiten hängen von der Eignung, Verfügbarkeit, den Kampagnenanforderungen und dem gewählten Service-Level ab. Die Teilnahme garantiert kein bestimmtes finanzielles Ergebnis.
-              </div>
-
-            </form>
+            </motion.form>
           )}
-
         </div>
-
       </div>
     </section>
   );
 };
+
+export default ApplicationFormSection;

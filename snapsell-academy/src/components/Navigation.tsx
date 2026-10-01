@@ -1,200 +1,287 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowUpRight, Sparkles, ShieldCheck } from 'lucide-react';
-import { trackEvent } from '../data/academyData';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import RollingText from "./RollingText";
 
-interface NavigationProps {
-  onOpenCompanion?: () => void;
-}
+const NAV_LINKS = [
+  { label: "Leistungen", href: "#leistungen" },
+  { label: "Über Mark", href: "#ueber-mark" },
+  { label: "Bewerbung", href: "#bewerbung" },
+];
 
-export const Navigation: React.FC<NavigationProps> = ({ onOpenCompanion }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('hero');
+export default function Navigation() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const firstLinkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 40) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-      const sections = ['hero', 'system', 'ai-content', 'snapsell', 'opportunities', 'about-mark', 'apply'];
-      const scrollPosition = window.scrollY + 200;
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    hamburgerRef.current?.focus();
+  }, []);
 
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(sectionId);
-            break;
-          }
+  useEffect(() => {
+    if (!menuOpen) return;
+    firstLinkRef.current?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMenu();
+
+      if (e.key === "Tab" && menuRef.current) {
+        const focusable = Array.from(
+          menuRef.current.querySelectorAll<HTMLElement>(
+            'a[href], button, [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        const first = focusable[0] as HTMLElement | undefined;
+        const last = focusable[focusable.length - 1] as HTMLElement | undefined;
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
         }
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen, closeMenu]);
 
-  const navLinks = [
-    { label: 'Das System', href: '#system', id: 'system' },
-    { label: 'KI-Content', href: '#ai-content', id: 'ai-content' },
-    { label: 'SnapSell', href: '#snapsell', id: 'snapsell' },
-    { label: 'Chancen', href: '#opportunities', id: 'opportunities' },
-    { label: 'Über Mark', href: '#about-mark', id: 'about-mark' },
-    { label: 'Bewerben', href: '#apply', id: 'apply' },
-  ];
-
-  const handleNavClick = (label: string, href: string) => {
-    trackEvent('Navigation Link Clicked', { label, href });
-    setMobileMenuOpen(false);
-  };
-
-  const handleCtaClick = () => {
-    trackEvent('Navigation CTA Clicked', { source: 'header' });
-    const el = document.getElementById('apply');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleNavClick = (href: string) => {
+    closeMenu();
+    const el = document.querySelector(href);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-[#101310]/85 backdrop-blur-md border-b border-[#171B18] shadow-lg shadow-black/40 py-3'
-            : 'bg-transparent py-5'
-        }`}
+    <header
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        transition: "background 0.3s ease, backdrop-filter 0.3s ease",
+        background: scrolled ? "rgba(5,5,5,0.92)" : "transparent",
+        backdropFilter: scrolled ? "blur(12px)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(12px)" : "none",
+      }}
+    >
+      <nav
+        style={{
+          maxWidth: "1400px",
+          margin: "0 auto",
+          padding: "1.25rem clamp(1.5rem, 4vw, 3rem)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-          {/* Top-left corner strictly kept empty and clean */}
-          <div className="hidden lg:block lg:flex-1 shrink-0" aria-hidden="true" />
+        {/* Logo */}
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.5rem" }}
+          aria-label="Mark Aurel – SnapSell, zur Startseite"
+        >
+          <span
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 700,
+              fontSize: "14px",
+              letterSpacing: "0.12em",
+              color: "#F5F5F2",
+              textTransform: "uppercase",
+            }}
+          >
+            MARK AUREL
+          </span>
+          <span style={{ color: "#444", fontSize: "13px", fontWeight: 400 }}>/</span>
+          <span
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontWeight: 400,
+              fontSize: "12px",
+              color: "#A5A5A5",
+              letterSpacing: "0.04em",
+            }}
+          >
+            × SnapSell
+          </span>
+        </a>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center justify-center gap-1 xl:gap-2 bg-[#171B18]/70 border border-[#171B18] px-3.5 xl:px-4 py-1.5 rounded-full backdrop-blur-md shadow-xs shrink-0">
-            {navLinks.map((link) => (
+        {/* Desktop links */}
+        <ul
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "2.5rem",
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+          }}
+          className="nav-desktop"
+        >
+          {NAV_LINKS.map((link) => (
+            <li key={link.href}>
               <a
-                key={link.id}
                 href={link.href}
-                onClick={() => handleNavClick(link.label, link.href)}
-                className={`px-3.5 py-1.5 text-xs xl:text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap flex items-center justify-center leading-none ${
-                  activeSection === link.id
-                    ? 'text-[#F4F7F5] bg-[#101310] border border-[#00C875]/40 shadow-xs'
-                    : 'text-[#99A49F] hover:text-[#F4F7F5] hover:bg-[#101310]/50'
-                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavClick(link.href);
+                }}
+                style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontWeight: 500,
+                  fontSize: "13px",
+                  letterSpacing: "0.04em",
+                  color: "#A5A5A5",
+                  textDecoration: "none",
+                  display: "block",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) =>
+                  ((e.currentTarget as HTMLAnchorElement).style.color = "#00D084")
+                }
+                onMouseLeave={(e) =>
+                  ((e.currentTarget as HTMLAnchorElement).style.color = "#A5A5A5")
+                }
+                onFocus={(e) =>
+                  ((e.currentTarget as HTMLAnchorElement).style.color = "#00D084")
+                }
+                onBlur={(e) =>
+                  ((e.currentTarget as HTMLAnchorElement).style.color = "#A5A5A5")
+                }
               >
-                <span className="whitespace-nowrap">{link.label}</span>
+                <RollingText text={link.label} />
               </a>
-            ))}
-          </nav>
+            </li>
+          ))}
+        </ul>
 
-            {/* Right Action: Companion Toolkit & Primary CTA */}
-          <div className="hidden lg:flex lg:flex-1 items-center justify-end gap-3 shrink-0">
-            {onOpenCompanion && (
-              <button
-                type="button"
-                onClick={onOpenCompanion}
-                className="hidden xl:flex items-center gap-1.5 text-xs text-[#99A49F] hover:text-[#00C875] bg-[#171B18]/70 border border-[#171B18] hover:border-[#00C875]/40 px-3.5 py-2 rounded-full transition-colors cursor-pointer whitespace-nowrap leading-none shrink-0"
-                title="KI-Visual-Prompts, erforderliche Client-Assets und Pre-Launch-Checkliste anzeigen"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#00C875] shrink-0" />
-                <span className="whitespace-nowrap">Client- & Dev-Specs</span>
-              </button>
-            )}
+        {/* Hamburger */}
+        <button
+          ref={hamburgerRef}
+          aria-label={menuOpen ? "Menü schließen" : "Menü öffnen"}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
+          onClick={() => setMenuOpen((prev) => !prev)}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "0.5rem",
+            display: "none",
+            flexDirection: "column",
+            gap: "5px",
+          }}
+          className="nav-hamburger"
+        >
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              animate={
+                menuOpen
+                  ? i === 0
+                    ? { rotate: 45, y: 7 }
+                    : i === 1
+                    ? { opacity: 0, scaleX: 0 }
+                    : { rotate: -45, y: -7 }
+                  : { rotate: 0, y: 0, opacity: 1, scaleX: 1 }
+              }
+              transition={{ duration: 0.22 }}
+              style={{
+                display: "block",
+                width: "22px",
+                height: "1.5px",
+                background: "#F5F5F2",
+                borderRadius: "2px",
+                transformOrigin: "center",
+              }}
+            />
+          ))}
+        </button>
+      </nav>
 
-            <button
-              type="button"
-              onClick={handleCtaClick}
-              className="relative group overflow-hidden rounded-full bg-[#00C875] px-5 py-2.5 text-xs xl:text-sm font-bold text-[#050706] shadow-sm hover:shadow-md hover:shadow-[#00C875]/30 transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap shrink-0 flex items-center justify-center"
-            >
-              <span className="relative z-10 flex items-center gap-1.5 tracking-wider uppercase font-heading whitespace-nowrap leading-none">
-                DER ACADEMY BEITRETEN
-                <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 shrink-0" />
-              </span>
-              <div className="absolute inset-0 bg-[#24E68A] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-            </button>
-          </div>
-
-          {/* Mobile Menu Trigger & Quick Action */}
-          <div className="flex items-center gap-2.5 lg:hidden ml-auto">
-            <button
-              type="button"
-              onClick={handleCtaClick}
-              className="bg-[#00C875] hover:bg-[#24E68A] text-[#050706] font-heading font-bold text-xs px-4 py-2 rounded-full tracking-wider uppercase whitespace-nowrap transition-colors flex items-center gap-1"
-            >
-              <span>BEITRETEN</span>
-              <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-[#99A49F] hover:text-[#F4F7F5] bg-[#171B18] border border-[#171B18] rounded-xl flex items-center justify-center transition-colors cursor-pointer"
-              aria-label="Navigationsmenü umschalten"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5 text-[#F4F7F5]" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Drawer Navigation */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-[#050706]/95 backdrop-blur-xl pt-24 px-6 lg:hidden flex flex-col justify-between pb-8">
-          <div className="space-y-4">
-            <div className="text-xs uppercase tracking-widest text-[#99A49F] font-semibold mb-2">
-              Navigation
-            </div>
-            {navLinks.map((link) => (
-              <a
-                key={link.id}
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            id="mobile-menu"
+            ref={menuRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              background: "rgba(5,5,5,0.97)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              borderTop: "1px solid rgba(255,255,255,0.06)",
+              padding: "1.5rem clamp(1.5rem, 4vw, 3rem) 2rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.25rem",
+            }}
+          >
+            {NAV_LINKS.map((link, i) => (
+              <motion.a
+                key={link.href}
+                ref={i === 0 ? firstLinkRef : undefined}
                 href={link.href}
-                onClick={() => handleNavClick(link.label, link.href)}
-                className="block text-lg font-heading font-semibold text-[#F4F7F5] hover:text-[#00C875] py-2 border-b border-[#171B18] transition-colors whitespace-nowrap"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavClick(link.href);
+                }}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.06, duration: 0.2 }}
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontWeight: 600,
+                  fontSize: "clamp(1.4rem, 5vw, 2rem)",
+                  color: "#F5F5F2",
+                  textDecoration: "none",
+                  padding: "0.6rem 0",
+                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) =>
+                  ((e.currentTarget as HTMLAnchorElement).style.color = "#00D084")
+                }
+                onMouseLeave={(e) =>
+                  ((e.currentTarget as HTMLAnchorElement).style.color = "#F5F5F2")
+                }
               >
                 {link.label}
-              </a>
+              </motion.a>
             ))}
-            {onOpenCompanion && (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenCompanion();
-                }}
-                className="w-full mt-4 flex items-center justify-between text-sm text-[#99A49F] bg-[#171B18] border border-[#171B18] p-3 rounded-xl cursor-pointer"
-              >
-                <span className="flex items-center gap-2 whitespace-nowrap">
-                  <Sparkles className="w-4 h-4 text-[#00C875] shrink-0" />
-                  Client- & Dev-Specs
-                </span>
-                <span className="text-xs text-[#00C875] whitespace-nowrap">Ansehen</span>
-              </button>
-            )}
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          <div className="space-y-3 pt-6">
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                handleCtaClick();
-              }}
-              className="w-full py-3.5 bg-[#00C875] hover:bg-[#24E68A] text-[#050706] font-heading font-bold text-sm tracking-wider uppercase rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors whitespace-nowrap"
-            >
-              <span>DER ACADEMY BEITRETEN</span>
-              <ArrowUpRight className="w-4 h-4 shrink-0" />
-            </button>
-            <div className="flex items-center justify-center gap-2 text-xs text-[#99A49F]">
-              <ShieldCheck className="w-4 h-4 text-[#00C875] shrink-0" />
-              <span className="whitespace-nowrap">18+ Verifiziertes Creator-Programm • Bewerbungsbasiert</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+      <style>{`
+        @media (max-width: 768px) {
+          .nav-desktop { display: none !important; }
+          .nav-hamburger { display: flex !important; }
+        }
+      `}</style>
+    </header>
   );
-};
+}
