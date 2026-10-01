@@ -193,16 +193,16 @@ function ImagePanel({ src, alt, objectPosition = "center", delay, inView, prefer
 function StickyFeaturesRow({ prefersReduced }: { prefersReduced: boolean | null }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Use raw scroll position — most reliable with sticky children
   React.useEffect(() => {
     const handleScroll = () => {
       const el = containerRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
       const totalHeight = el.offsetHeight - window.innerHeight;
-      // How far we've scrolled INTO the container (0 = top, 1 = bottom)
       const progress = Math.min(1, Math.max(0, -rect.top / totalHeight));
+      setScrollProgress(progress);
       const idx = Math.min(DETAILS.length - 1, Math.floor(progress * DETAILS.length));
       setActiveIndex(Math.max(0, idx));
     };
@@ -246,31 +246,31 @@ function StickyFeaturesRow({ prefersReduced }: { prefersReduced: boolean | null 
             width: "100%",
           }}
         >
-          {/* LEFT: image (naturally fixed because it's inside sticky) */}
+          {/* LEFT: image scrolls upward as user scrolls — Umbral style */}
           <div
             className="sticky-image-col"
             style={{
               overflow: "hidden",
-              backgroundColor: "#e8e8e8",
+              backgroundColor: "#0d0d0d",
               aspectRatio: "4 / 3",
               position: "relative",
               borderRadius: "16px",
             }}
           >
-            <motion.img
+            <img
               src="/photos/timeline.png"
               alt="Video-Editing-Timeline"
-              initial={{ scale: prefersReduced ? 1 : 1.04 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 1.1, ease }}
               style={{
                 position: "absolute",
                 inset: 0,
                 width: "100%",
-                height: "100%",
+                height: "120%", // taller so scroll-up reveal works
                 objectFit: "cover",
                 objectPosition: "center",
                 display: "block",
+                // scroll upward: image translates from 0% → -20% as progress goes 0→1
+                transform: prefersReduced ? "none" : `translateY(${-scrollProgress * 20}%)`,
+                transition: "transform 0.05s linear",
               }}
             />
           </div>
