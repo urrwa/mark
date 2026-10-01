@@ -5,7 +5,9 @@ import {
   useScroll,
   useTransform,
   useInView,
+  useMotionValueEvent,
 } from "motion/react";
+import { useState } from "react";
 
 // ─── Constants ─────────────────────────────────────────────────────────────
 
@@ -186,14 +188,135 @@ function ImagePanel({ src, alt, objectPosition = "center", delay, inView, prefer
   );
 }
 
+// ─── Sticky features row (Umbral-style) ───────────────────────────────────
+
+function StickyFeaturesRow({ prefersReduced }: { prefersReduced: boolean | null }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start 0.6", "end 0.6"],
+  });
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    const idx = Math.min(DETAILS.length - 1, Math.floor(v * DETAILS.length));
+    setActiveIndex(Math.max(0, idx));
+  });
+
+  return (
+    <div
+      ref={containerRef}
+      className="sticky-features-outer"
+      style={{
+        maxWidth: "1440px",
+        margin: "0 auto",
+        padding: "0 clamp(1.25rem,4vw,3rem) clamp(3.5rem,7vh,5rem)",
+      }}
+    >
+      <div
+        className="sticky-features-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "clamp(20px, 3vw, 40px)",
+          alignItems: "start",
+        }}
+      >
+        {/* LEFT: sticky image */}
+        <div
+          className="sticky-image-col"
+          style={{
+            position: "sticky",
+            top: "100px",
+            overflow: "hidden",
+            backgroundColor: "#e8e8e8",
+            aspectRatio: "4 / 3",
+          }}
+        >
+          <motion.img
+            src="/photos/timeline.png"
+            alt="Video-Editing-Timeline"
+            initial={{ scale: prefersReduced ? 1 : 1.04 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 1.1, ease }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+              display: "block",
+            }}
+          />
+        </div>
+
+        {/* RIGHT: features scroll */}
+        <div
+          className="sticky-features-col"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0",
+          }}
+        >
+          {DETAILS.map((item, i) => {
+            const isActive = i === activeIndex;
+            return (
+              <React.Fragment key={item.num}>
+                <motion.div
+                  initial={{ opacity: 0, y: prefersReduced ? 0 : 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.6, ease, delay: i * 0.08 }}
+                  style={{
+                    padding: "clamp(1.5rem, 2.5vw, 2.25rem) 0",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.35rem",
+                    opacity: isActive ? 1 : 0.32,
+                    transition: "opacity 0.4s ease",
+                  }}
+                >
+                  <span style={{ ...numStyle, color: isActive ? "#00D084" : "#bbb" }}>
+                    {item.num}
+                  </span>
+                  <span style={{
+                    ...detailHeadStyle,
+                    fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
+                    fontWeight: isActive ? 600 : 500,
+                    color: isActive ? "#111" : "#888",
+                    transition: "color 0.4s ease",
+                  }}>
+                    {item.heading}
+                  </span>
+                  <span style={{
+                    ...detailDescStyle,
+                    color: isActive ? "#555" : "#aaa",
+                    transition: "color 0.4s ease",
+                  }}>
+                    {item.desc}
+                  </span>
+                </motion.div>
+                {i < DETAILS.length - 1 && (
+                  <div style={{ height: "1px", background: "rgba(0,0,0,0.08)" }} />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main section ──────────────────────────────────────────────────────────
 
 export function ProblemSection() {
   const prefersReduced = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const headerInView = useInView(sectionRef, { once: true, margin: "-60px" });
-  const columnsRef = useRef<HTMLDivElement>(null);
-  const columnsInView = useInView(columnsRef, { once: true, margin: "-80px" });
 
   return (
     <section
@@ -282,87 +405,8 @@ export function ProblemSection() {
         </div>
       </div>
 
-      {/* ── Three-column row ───────────────────────────────────────── */}
-      <div
-        ref={columnsRef}
-        style={{
-          maxWidth: "1440px",
-          margin: "0 auto",
-          padding: "0 clamp(1.25rem,4vw,3rem) clamp(3.5rem,7vh,5rem)",
-        }}
-      >
-        <div
-          className="problem-columns"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
-            gap: "20px",
-            alignItems: "stretch",
-            // Row height driven by the text panel; images fill to match
-            gridAutoRows: "minmax(520px, auto)",
-          }}
-        >
-          {/* LEFT: details panel */}
-          <motion.div
-            initial={{ opacity: 0, y: prefersReduced ? 0 : 24 }}
-            animate={columnsInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.75, ease, delay: 0.05 }}
-            style={{
-              backgroundColor: "#f3f3f3",
-              padding: "clamp(1.75rem, 2.5vw, 2.25rem)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
-          >
-            {DETAILS.map((item, i) => (
-              <motion.div
-                key={item.num}
-                initial={{ opacity: 0, y: prefersReduced ? 0 : 18 }}
-                animate={columnsInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.55, ease, delay: 0.05 + i * 0.1 }}
-              >
-                <div
-                  style={{
-                    padding: "clamp(0.75rem, 1.2vw, 1rem) 0",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.25rem",
-                  }}
-                >
-                  <span style={numStyle}>{item.num}</span>
-                  <span style={detailHeadStyle}>{item.heading}</span>
-                  <span style={detailDescStyle}>{item.desc}</span>
-                </div>
-                {i < DETAILS.length - 1 && (
-                  <div style={{ height: "1px", background: "rgba(0,0,0,0.08)" }} />
-                )}
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* CENTER: timeline image */}
-          <ImagePanel
-            src="/photos/timeline.png"
-            alt="Video-Editing-Timeline – professionelle Content-Produktion"
-            objectPosition="center"
-            delay={0.15}
-            inView={columnsInView}
-            prefersReduced={prefersReduced}
-            bg="#e8e8e8"
-          />
-
-          {/* RIGHT: creator photo */}
-          <ImagePanel
-            src="/photos/collab-01.png"
-            alt="Creator am Arbeitsplatz – professionelle Produktionsumgebung"
-            objectPosition="center top"
-            delay={0.25}
-            inView={columnsInView}
-            prefersReduced={prefersReduced}
-          />
-        </div>
-      </div>
+      {/* ── Sticky scroll: image left, features right ─────────────── */}
+      <StickyFeaturesRow prefersReduced={prefersReduced} />
 
 
       <style>{`
@@ -373,24 +417,13 @@ export function ProblemSection() {
           .problem-intro-grid > div[aria-hidden] {
             display: none !important;
           }
-          .problem-columns {
-            grid-template-columns: 1fr !important;
-            grid-auto-rows: auto !important;
-          }
-          .problem-columns > div {
-            min-height: 280px;
-          }
-          .workload-grid {
+          .sticky-features-grid {
             grid-template-columns: 1fr !important;
           }
-          .workload-item {
-            border-right: none !important;
-            padding-left: 0 !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08);
-            padding-bottom: 1.5rem;
-          }
-          .workload-item:last-child {
-            border-bottom: none;
+          .sticky-image-col {
+            position: relative !important;
+            top: auto !important;
+            aspect-ratio: 16/9 !important;
           }
         }
       `}</style>
