@@ -3,11 +3,13 @@ import { motion, useReducedMotion } from "motion/react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// Each line: array of {text, color} segments for mixed-color headline
-const HEADLINE_LINES: { text: string; color: string }[][] = [
-  [{ text: "Dein Talent.", color: "#F5F5F2" }],
-  [{ text: "Ein ", color: "#777" }, { text: "stärkeres", color: "#F5F5F2" }],
-  [{ text: "Creator", color: "#00D084" }, { text: "-Business.", color: "#F5F5F2" }],
+// Mixed-color segments — flows as one paragraph, wraps naturally at container width
+const HEADLINE_SEGMENTS: { text: string; color: string }[] = [
+  { text: "Dein Talent. ", color: "#F5F5F2" },
+  { text: "Ein ", color: "#777" },
+  { text: "stärkeres ", color: "#F5F5F2" },
+  { text: "Creator", color: "#00D084" },
+  { text: "-Business.", color: "#F5F5F2" },
 ];
 
 export default function HeroSection() {
@@ -97,30 +99,26 @@ export default function HeroSection() {
             </span>
           </motion.div>
 
-          {/* Headline */}
-          <h1 style={{ margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.05em" }}>
-            {HEADLINE_LINES.map((segments, i) => (
-              <div key={i} style={{ overflow: "hidden", lineHeight: 1 }}>
-                <motion.span
-                  initial={{ opacity: 0, y: prefersReduced ? 0 : "105%" }}
-                  animate={ready ? { opacity: 1, y: "0%" } : {}}
-                  transition={{ duration: dur * 0.85, ease, delay: stagger * (i + 1) + 0.1 }}
-                  style={{
-                    display: "block",
-                    fontFamily: "Space Grotesk, sans-serif",
-                    fontWeight: 500,
-                    fontSize: "clamp(2.8rem, 8.5vw, 7.5rem)",
-                    letterSpacing: "-0.03em",
-                    lineHeight: 1.0,
-                  }}
-                >
-                  {segments.map((seg, j) => (
-                    <span key={j} style={{ color: seg.color }}>{seg.text}</span>
-                  ))}
-                </motion.span>
-              </div>
+          {/* Headline — flows naturally like Arc Studio, wraps at ~60% container */}
+          <motion.h1
+            initial={{ opacity: 0, y: prefersReduced ? 0 : 28 }}
+            animate={ready ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: dur * 0.9, ease, delay: stagger + 0.1 }}
+            style={{
+              margin: 0,
+              padding: 0,
+              fontFamily: "Space Grotesk, sans-serif",
+              fontWeight: 500,
+              fontSize: "clamp(2rem, 5vw, 5rem)",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+              maxWidth: "62%",
+            }}
+          >
+            {HEADLINE_SEGMENTS.map((seg, i) => (
+              <span key={i} style={{ color: seg.color }}>{seg.text}</span>
             ))}
-          </h1>
+          </motion.h1>
 
           {/* CTAs */}
           <motion.div
