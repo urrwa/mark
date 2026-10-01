@@ -194,117 +194,137 @@ function StickyFeaturesRow({ prefersReduced }: { prefersReduced: boolean | null 
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 0.6", "end 0.6"],
-  });
-
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    const idx = Math.min(DETAILS.length - 1, Math.floor(v * DETAILS.length));
-    setActiveIndex(Math.max(0, idx));
-  });
+  // Use raw scroll position — most reliable with sticky children
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const el = containerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const totalHeight = el.offsetHeight - window.innerHeight;
+      // How far we've scrolled INTO the container (0 = top, 1 = bottom)
+      const progress = Math.min(1, Math.max(0, -rect.top / totalHeight));
+      const idx = Math.min(DETAILS.length - 1, Math.floor(progress * DETAILS.length));
+      setActiveIndex(Math.max(0, idx));
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
+    /* Tall scroll container — gives each feature ~25vh of scroll space */
     <div
       ref={containerRef}
       className="sticky-features-outer"
       style={{
-        maxWidth: "1440px",
-        margin: "0 auto",
-        padding: "0 clamp(1.25rem,4vw,3rem) clamp(3.5rem,7vh,5rem)",
+        position: "relative",
+        minHeight: `${DETAILS.length * 60}vh`,
       }}
     >
+      {/* Inner sticky wrapper — stays in view while user scrolls the tall container */}
       <div
-        className="sticky-features-grid"
         style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "clamp(20px, 3vw, 40px)",
-          alignItems: "start",
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          maxWidth: "1440px",
+          margin: "0 auto",
+          padding: "0 clamp(1.25rem,4vw,3rem)",
+          boxSizing: "border-box",
+          width: "100%",
         }}
       >
-        {/* LEFT: sticky image */}
         <div
-          className="sticky-image-col"
+          className="sticky-features-grid"
           style={{
-            position: "sticky",
-            top: "100px",
-            overflow: "hidden",
-            backgroundColor: "#e8e8e8",
-            aspectRatio: "4 / 3",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "clamp(20px, 3vw, 40px)",
+            alignItems: "center",
+            width: "100%",
           }}
         >
-          <motion.img
-            src="/photos/timeline.png"
-            alt="Video-Editing-Timeline"
-            initial={{ scale: prefersReduced ? 1 : 1.04 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 1.1, ease }}
+          {/* LEFT: image (naturally fixed because it's inside sticky) */}
+          <div
+            className="sticky-image-col"
             style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              objectPosition: "center",
-              display: "block",
+              overflow: "hidden",
+              backgroundColor: "#e8e8e8",
+              aspectRatio: "4 / 3",
+              position: "relative",
+              borderRadius: "16px",
             }}
-          />
-        </div>
+          >
+            <motion.img
+              src="/photos/timeline.png"
+              alt="Video-Editing-Timeline"
+              initial={{ scale: prefersReduced ? 1 : 1.04 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 1.1, ease }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center",
+                display: "block",
+              }}
+            />
+          </div>
 
-        {/* RIGHT: features scroll */}
-        <div
-          className="sticky-features-col"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "0",
-          }}
-        >
-          {DETAILS.map((item, i) => {
-            const isActive = i === activeIndex;
-            return (
-              <React.Fragment key={item.num}>
-                <motion.div
-                  initial={{ opacity: 0, y: prefersReduced ? 0 : 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.6, ease, delay: i * 0.08 }}
-                  style={{
-                    padding: "clamp(1.5rem, 2.5vw, 2.25rem) 0",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.35rem",
-                    opacity: isActive ? 1 : 0.32,
-                    transition: "opacity 0.4s ease",
-                  }}
-                >
-                  <span style={{ ...numStyle, color: isActive ? "#00D084" : "#bbb" }}>
-                    {item.num}
-                  </span>
-                  <span style={{
-                    ...detailHeadStyle,
-                    fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
-                    fontWeight: isActive ? 600 : 500,
-                    color: isActive ? "#111" : "#888",
-                    transition: "color 0.4s ease",
-                  }}>
-                    {item.heading}
-                  </span>
-                  <span style={{
-                    ...detailDescStyle,
-                    color: isActive ? "#555" : "#aaa",
-                    transition: "color 0.4s ease",
-                  }}>
-                    {item.desc}
-                  </span>
-                </motion.div>
-                {i < DETAILS.length - 1 && (
-                  <div style={{ height: "1px", background: "rgba(0,0,0,0.08)" }} />
-                )}
-              </React.Fragment>
-            );
-          })}
+          {/* RIGHT: features list — highlights based on scroll progress */}
+          <div
+            className="sticky-features-col"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0",
+            }}
+          >
+            {DETAILS.map((item, i) => {
+              const isActive = i === activeIndex;
+              return (
+                <React.Fragment key={item.num}>
+                  <div
+                    style={{
+                      padding: "clamp(1.5rem, 2.5vw, 2.25rem) 0",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.35rem",
+                      opacity: isActive ? 1 : 0.28,
+                      transition: "opacity 0.45s ease",
+                    }}
+                  >
+                    <span style={{ ...numStyle, color: isActive ? "#00D084" : "#bbb", transition: "color 0.45s ease" }}>
+                      {item.num}
+                    </span>
+                    <span style={{
+                      ...detailHeadStyle,
+                      fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
+                      fontWeight: isActive ? 600 : 500,
+                      color: isActive ? "#111" : "#888",
+                      transition: "color 0.45s ease",
+                    }}>
+                      {item.heading}
+                    </span>
+                    <span style={{
+                      ...detailDescStyle,
+                      color: isActive ? "#555" : "#aaa",
+                      transition: "color 0.45s ease",
+                    }}>
+                      {item.desc}
+                    </span>
+                  </div>
+                  {i < DETAILS.length - 1 && (
+                    <div style={{ height: "1px", background: "rgba(0,0,0,0.08)" }} />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
