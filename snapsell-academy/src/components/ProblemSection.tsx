@@ -88,14 +88,14 @@ interface WordRevealProps {
   text: string;
   as?: "p" | "h2";
   style?: React.CSSProperties;
-  scrollOffset?: ["start 0.85" | "start 0.9" | "start 0.8", "end 0.3" | "end 0.35" | "end 0.55"];
+  scrollOffset?: [string, string];
 }
 
 function WordReveal({
   text,
   as: Tag = "p",
   style: styleProp,
-  scrollOffset = ["start 0.85", "end 0.3"],
+  scrollOffset = ["start 0.9", "end 0.4"],
 }: WordRevealProps) {
   const prefersReduced = useReducedMotion();
   const containerRef = useRef<HTMLElement>(null);
@@ -261,7 +261,7 @@ export function ProblemSection() {
             <WordReveal
               as="h2"
               text="Immer noch alles alleine managen?"
-              scrollOffset={["start 0.9", "end 0.55"]}
+              scrollOffset={["start 1.0", "end 0.6"]}
               style={{
                 fontFamily: "Space Grotesk, sans-serif",
                 fontWeight: 500,
@@ -275,7 +275,7 @@ export function ProblemSection() {
 
             <WordReveal
               text={INTRO_TEXT}
-              scrollOffset={["start 0.8", "end 0.3"]}
+              scrollOffset={["start 0.85", "end 0.25"]}
               style={introPStyle}
             />
           </div>
