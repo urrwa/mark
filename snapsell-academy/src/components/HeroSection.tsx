@@ -6,7 +6,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 // Each line: array of {text, color} segments for mixed-color headline
 const HEADLINE_LINES: { text: string; color: string }[][] = [
   [{ text: "Dein Talent.", color: "#F5F5F2" }],
-  [{ text: "Ein ", color: "#555" }, { text: "stärkeres", color: "#F5F5F2" }],
+  [{ text: "Ein ", color: "#777" }, { text: "stärkeres", color: "#F5F5F2" }],
   [{ text: "Creator", color: "#00D084" }, { text: "-Business.", color: "#F5F5F2" }],
 ];
 
@@ -108,10 +108,10 @@ export default function HeroSection() {
                   style={{
                     display: "block",
                     fontFamily: "Space Grotesk, sans-serif",
-                    fontWeight: 550,
-                    fontSize: "clamp(2.6rem, 7.5vw, 6.5rem)",
-                    letterSpacing: "-0.025em",
-                    lineHeight: 1.05,
+                    fontWeight: 500,
+                    fontSize: "clamp(2.8rem, 8.5vw, 7.5rem)",
+                    letterSpacing: "-0.03em",
+                    lineHeight: 1.0,
                   }}
                 >
                   {segments.map((seg, j) => (
