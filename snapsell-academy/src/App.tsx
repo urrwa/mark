@@ -2,14 +2,7 @@ import React, { useState } from 'react';
 import IntroLoader from './components/IntroLoader';
 import Navigation from './components/Navigation';
 import HeroSection from './components/HeroSection';
-import { MeetMarkSection } from './components/MeetMarkSection';
 import { ProblemSection } from './components/ProblemSection';
-import { ThreePillarsSection } from './components/ThreePillarsSection';
-import PartnershipSection from './components/PartnershipSection';
-import { ProfessionalProductionsSection } from './components/ProfessionalProductionsSection';
-import { FAQSection } from './components/FAQSection';
-import ApplicationFormSection from './components/ApplicationFormSection';
-import FooterSection from './components/FooterSection';
 
 export default function App() {
   const [loaderDone, setLoaderDone] = useState(false);
@@ -31,14 +24,7 @@ export default function App() {
               <HeroSection />
             </div>
             <ProblemSection />
-            <MeetMarkSection />
-            <ThreePillarsSection />
-            <PartnershipSection />
-            <ProfessionalProductionsSection />
-            <FAQSection />
-            <ApplicationFormSection />
           </main>
-          <FooterSection />
         </div>
       </div>
     </>

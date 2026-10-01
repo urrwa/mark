@@ -194,8 +194,6 @@ export function ProblemSection() {
   const headerInView = useInView(sectionRef, { once: true, margin: "-60px" });
   const columnsRef = useRef<HTMLDivElement>(null);
   const columnsInView = useInView(columnsRef, { once: true, margin: "-80px" });
-  const closingRef = useRef<HTMLDivElement>(null);
-  const closingInView = useInView(closingRef, { once: true, margin: "-60px" });
 
   return (
     <section
@@ -366,90 +364,6 @@ export function ProblemSection() {
         </div>
       </div>
 
-      {/* ── Workload strip ─────────────────────────────────────────── */}
-      <div
-        style={{
-          maxWidth: "1440px",
-          margin: "0 auto",
-          padding: "0 clamp(1.25rem,4vw,3rem) clamp(3.5rem,7vh,5rem)",
-        }}
-      >
-        <div style={{ marginBottom: "1.5rem" }}>
-          <span style={labelStyle}>Manueller Aufwand · 24/7 Postfach-Druck</span>
-          <div style={{ height: "1px", background: "rgba(0,0,0,0.08)", marginTop: "0.75rem" }} />
-        </div>
-
-        <div
-          className="workload-grid"
-          style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}
-        >
-          {WORKLOAD.map((item, i) => (
-            <motion.div
-              key={item.heading}
-              initial={{ opacity: 0, y: prefersReduced ? 0 : 14 }}
-              animate={columnsInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, ease, delay: 0.1 + i * 0.1 }}
-              className="workload-item"
-              style={{
-                padding: "1.5rem 1.5rem 1.5rem 0",
-                paddingLeft: i > 0 ? "1.5rem" : 0,
-                borderRight: i < WORKLOAD.length - 1 ? "1px solid rgba(0,0,0,0.08)" : "none",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.4rem",
-              }}
-            >
-              <span style={workloadHeadStyle}>{item.heading}</span>
-              <span style={workloadTimeStyle}>{item.time}</span>
-              <span style={workloadMsgStyle}>{item.msg}</span>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Closing statement ─────────────────────────────────────── */}
-      <div
-        ref={closingRef}
-        style={{
-          maxWidth: "1440px",
-          margin: "0 auto",
-          padding: "clamp(2rem,4vh,3rem) clamp(1.25rem,4vw,3rem) clamp(5rem,10vh,8rem)",
-          borderTop: "1px solid rgba(0,0,0,0.08)",
-        }}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: prefersReduced ? 0 : 16 }}
-          animate={closingInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease, delay: 0.1 }}
-          style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}
-        >
-          <span style={labelStyle}>Das Academy-Paradigma</span>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
-            <p style={{
-              fontFamily: "Space Grotesk, sans-serif",
-              fontWeight: 400,
-              fontSize: "clamp(1.4rem, 3.2vw, 2.6rem)",
-              lineHeight: 1.15,
-              letterSpacing: "-0.02em",
-              color: "#555555",
-              margin: 0,
-            }}>
-              „Du musst nicht härter arbeiten.
-            </p>
-            <p style={{
-              fontFamily: "Space Grotesk, sans-serif",
-              fontWeight: 600,
-              fontSize: "clamp(1.4rem, 3.2vw, 2.6rem)",
-              lineHeight: 1.15,
-              letterSpacing: "-0.02em",
-              color: "#00D084",
-              margin: 0,
-            }}>
-              Du brauchst ein besseres System.“
-            </p>
-          </div>
-        </motion.div>
-      </div>
 
       <style>{`
         @media (max-width: 768px) {
