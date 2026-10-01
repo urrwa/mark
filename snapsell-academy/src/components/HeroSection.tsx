@@ -3,12 +3,12 @@ import { motion, useReducedMotion } from "motion/react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// Mixed-color segments — flows as one paragraph, wraps naturally at container width
+// Mixed-color segments — flows naturally, wraps across 4-5 lines at small font
 const HEADLINE_SEGMENTS: { text: string; color: string }[] = [
-  { text: "Dein Talent. ", color: "#F5F5F2" },
-  { text: "Ein ", color: "#777" },
-  { text: "stärkeres ", color: "#F5F5F2" },
-  { text: "Creator", color: "#00D084" },
+  { text: "Dein Talent.", color: "#F5F5F2" },
+  { text: " Ein ", color: "#888" },
+  { text: "stärkeres", color: "#F5F5F2" },
+  { text: " Creator", color: "#00D084" },
   { text: "-Business.", color: "#F5F5F2" },
 ];
 
@@ -109,10 +109,10 @@ export default function HeroSection() {
               padding: 0,
               fontFamily: "Space Grotesk, sans-serif",
               fontWeight: 500,
-              fontSize: "clamp(2rem, 5vw, 5rem)",
-              letterSpacing: "-0.03em",
-              lineHeight: 1.1,
-              maxWidth: "62%",
+              fontSize: "clamp(1.6rem, 3.2vw, 3.4rem)",
+              letterSpacing: "-0.025em",
+              lineHeight: 1.15,
+              maxWidth: "50%",
             }}
           >
             {HEADLINE_SEGMENTS.map((seg, i) => (
