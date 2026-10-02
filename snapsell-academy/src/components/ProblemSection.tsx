@@ -90,7 +90,7 @@ interface WordRevealProps {
   text: string;
   as?: "p" | "h2";
   style?: React.CSSProperties;
-  scrollOffset?: [string, string];
+  scrollOffset?: NonNullable<Parameters<typeof useScroll>[0]>['offset'];
 }
 
 function WordReveal({

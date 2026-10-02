@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { label: "FAQ", href: "#faq" },
 ];
 
-const ease = [0.22, 1, 0.36, 1];
+const ease = [0.22, 1, 0.36, 1] as const;
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
