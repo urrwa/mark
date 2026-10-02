@@ -6,7 +6,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 // ── Marquee strip ─────────────────────────────────────────────────────────────
 function Marquee({ prefersReduced }: { prefersReduced: boolean | null }) {
   const text = "MARK AUREL · CREATOR AGENCY · ";
-  const repeated = Array(8).fill(text).join("");
+  const repeated = Array(12).fill(text).join("");
 
   return (
     <div
@@ -34,10 +34,10 @@ function Marquee({ prefersReduced }: { prefersReduced: boolean | null }) {
             key={i}
             style={{
               fontFamily: "Space Grotesk, sans-serif",
-              fontWeight: 700,
-              fontSize: "clamp(5rem, 12vw, 10rem)",
-              letterSpacing: "-0.02em",
-              color: "rgba(255,255,255,0.055)",
+              fontWeight: 800,
+              fontSize: "clamp(6rem, 14vw, 13rem)",
+              letterSpacing: "-0.03em",
+              color: "rgba(255,255,255,0.07)",
               lineHeight: 1,
               userSelect: "none",
               flexShrink: 0,
@@ -73,17 +73,16 @@ export default function HeroSection() {
 
       {/* Layer 3: Mark portrait cutout */}
       <motion.div
-        initial={{ opacity: 0, scale: prefersReduced ? 1 : 1.03 }}
+        initial={{ opacity: 0, scale: prefersReduced ? 1 : 1.04 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.1, ease, delay: 0.3 }}
+        transition={{ duration: 1.2, ease, delay: 0.2 }}
         className="mark-portrait"
         style={{
           position: "absolute",
           bottom: 0,
-          right: "clamp(0%, 6vw, 10%)",
+          right: "clamp(2%, 8vw, 12%)",
           zIndex: 3,
-          height: "clamp(72vh, 90vh, 96vh)",
-          maxWidth: "clamp(320px, 52vw, 760px)",
+          height: "clamp(78vh, 92vh, 100vh)",
           display: "flex",
           alignItems: "flex-end",
           pointerEvents: "none",
@@ -98,6 +97,7 @@ export default function HeroSection() {
             objectFit: "contain",
             objectPosition: "bottom center",
             display: "block",
+            filter: "drop-shadow(0 0 60px rgba(0,0,0,0.6))",
           }}
         />
       </motion.div>
@@ -263,16 +263,15 @@ export default function HeroSection() {
           to   { transform: translateX(-50%); }
         }
         .marquee-track {
-          animation: marquee-ltr 32s linear infinite;
+          animation: marquee-ltr 40s linear infinite;
         }
 
         @media (max-width: 768px) {
           .mark-portrait {
             right: 50% !important;
             transform: translateX(50%) !important;
-            height: clamp(44vh, 54vh, 60vh) !important;
-            max-width: 88vw !important;
-            opacity: 0.32 !important;
+            height: clamp(50vh, 60vh, 66vh) !important;
+            opacity: 0.28 !important;
           }
           .hero-content {
             justify-content: flex-end !important;
