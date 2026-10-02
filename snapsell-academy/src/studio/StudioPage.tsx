@@ -41,6 +41,41 @@ const navigation = [
   ["FAQ", "#faq"],
 ];
 
+function ImageReveal({
+  children,
+  className,
+  delay,
+}: {
+  children: ReactNode;
+  className: string;
+  delay: number;
+}) {
+  const frame = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  // Observe the unclipped frame: a fully clipped target never intersects.
+  const visible = useInView(frame, {
+    once: true,
+    amount: 0.16,
+    margin: "0px 0px -35px 0px",
+  });
+  return (
+    <div ref={frame} className={className}>
+      <motion.div
+        className="image-reveal-content"
+        initial={reduced ? false : { clipPath: "inset(100% 0% 0% 0%)" }}
+        animate={{
+          clipPath: visible || reduced
+            ? "inset(0% 0% 0% 0%)"
+            : "inset(100% 0% 0% 0%)",
+        }}
+        transition={{ duration: reduced ? 0 : 1.05, ease, delay: reduced ? 0 : delay }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
 function Reveal({
   children,
   className = "",
@@ -53,10 +88,11 @@ function Reveal({
   variant?: "rise" | "image" | "card";
 }) {
   const reduced = useReducedMotion();
+  if (variant === "image") {
+    return <ImageReveal className={className} delay={delay}>{children}</ImageReveal>;
+  }
   const hidden =
-    variant === "image"
-      ? { opacity: 1, y: 30, clipPath: "inset(100% 0% 0% 0%)" }
-      : variant === "card"
+    variant === "card"
         ? { opacity: 0, y: 90, rotate: 2, scale: 0.96 }
         : { opacity: 0, y: 65 };
   return (

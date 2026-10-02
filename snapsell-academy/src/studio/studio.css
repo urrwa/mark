@@ -518,6 +518,10 @@ body {
   overflow: hidden;
   min-height: 540px;
 }
+.image-reveal-content {
+  position: absolute;
+  inset: 0;
+}
 .reality-image img {
   height: 100%;
   position: absolute;
@@ -1052,7 +1056,7 @@ body {
   inset: 0;
   object-position: 48% center;
 }
-.cyprus-photo > span {
+.cyprus-photo span {
   position: absolute;
   bottom: 24px;
   left: 24px;
@@ -2345,7 +2349,7 @@ body {
   .cyprus-photo {
     min-height: 430px;
   }
-  .cyprus-photo > span {
+  .cyprus-photo span {
     font-size: 7px;
   }
   .cyprus-copy h2 {
@@ -2606,7 +2610,7 @@ html:has(.intro) {
   .motion-control {
     font-size: 10px !important;
   }
-  .cyprus-photo > span {
+  .cyprus-photo span {
     font-size: 9px;
   }
   .intro > div small {
