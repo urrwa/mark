@@ -30,10 +30,10 @@ import "./studio.css";
 const ease = [0.22, 1, 0.36, 1] as const;
 const img = (name: string) => `/media/${name}.webp`;
 const navigation = [
-  ["Über Mark", "#mark"],
-  ["Unterstützung", "#partnerschaft"],
-  ["So funktioniert es", "#system"],
-  ["Zypern", "#zypern"],
+  ["About Mark", "#mark"],
+  ["Support", "#partnerschaft"],
+  ["How it works", "#system"],
+  ["Cyprus", "#zypern"],
   ["FAQ", "#faq"],
 ];
 
@@ -193,7 +193,7 @@ function Header() {
       <a
         className="brand"
         href="#hero"
-        aria-label="Mark Aurel Creator Agency – Startseite"
+        aria-label="Mark Aurel Creator Agency – Home"
       >
         <span>
           MARK AUREL<span className="brand-dot">✳</span>
@@ -202,7 +202,7 @@ function Header() {
           CREATOR AGENCY <b>× SNAPSELL</b>
         </small>
       </a>
-      <nav className="desktop-nav" aria-label="Hauptnavigation">
+      <nav className="desktop-nav" aria-label="Main navigation">
         {navigation.map(([title, href]) => (
           <a key={href} href={href}>
             {title}
@@ -214,14 +214,14 @@ function Header() {
         href="#bewerbung"
         onClick={() => setOpen(false)}
       >
-        Bewerben <ArrowUpRight size={16} aria-hidden="true" />
+        Apply <ArrowUpRight size={16} aria-hidden="true" />
       </a>
       <button
         ref={toggle}
         className="menu-toggle"
         aria-expanded={open}
         aria-controls="mobile-nav"
-        aria-label={open ? "Menü schließen" : "Menü öffnen"}
+        aria-label={open ? "Close menu" : "Open menu"}
         onClick={() => setOpen(!open)}
       >
         {open ? <X /> : <Menu />}
@@ -267,7 +267,7 @@ function Hero({
         <motion.img
           className="hero-portrait"
           src={img("mark-cutout")}
-          alt="Mark Aurel, Gründer der Creator Agency"
+          alt="Mark Aurel, founder of the Creator Agency"
           width="540"
           height="768"
           fetchPriority="high"
@@ -278,42 +278,41 @@ function Hero({
         <div className="hero-side-note">
           <span>CREATOR.</span>
           <span>MENTOR.</span>
-          <span>BRANCHENVERBINDER.</span>
+          <span>INDUSTRY CONNECTOR.</span>
         </div>
         {!reduced && (
           <button
             className="hero-motion"
             onClick={() => setPaused(!paused)}
-            aria-label={paused ? "Lauftext fortsetzen" : "Lauftext pausieren"}
+            aria-label={paused ? "Resume scrolling text" : "Pause scrolling text"}
           >
             {paused ? <Play size={12} /> : <Pause size={12} />}
-            {paused ? "LAUFTEXT STARTEN" : "LAUFTEXT PAUSIEREN"}
+            {paused ? "RESUME TEXT" : "PAUSE TEXT"}
           </button>
         )}
         <a className="hero-scroll" href="#realitaet">
-          <ArrowDown size={16} /> ENTDECKEN
+          <ArrowDown size={16} /> EXPLORE
         </a>
         <span className="hero-signature">
-          Persönlich. Professionell.
+          Personal. Professional.
           <br />
-          Mit dir nach vorne.
+          Moving forward with you.
         </span>
       </div>
       <div className="hero-bottom">
         <h1>
-          Dein Talent.
+          Your talent.
           <br />
-          Ein stärkeres
-          <br className="mobile-br" /> <span>Creator-Business.</span>
+          A stronger
+          <br className="mobile-br" /> <span>Creator Business.</span>
         </h1>
         <p>
-          Baue deine Marke mit persönlicher Unterstützung, professioneller
-          Content-Hilfe und moderner Technologie auf.
+          Build your brand with personal support, professional content guidance, and modern technology.
         </p>
         <div className="hero-actions">
-          <Action href="#bewerbung">Bewerbung starten</Action>
+          <Action href="#bewerbung">Start your application</Action>
           <a className="text-link" href="#system">
-            So funktioniert es <ArrowRight size={16} />
+            How it works <ArrowRight size={16} />
           </a>
         </div>
       </div>
@@ -323,35 +322,35 @@ function Hero({
 
 const challenges = [
   [
-    "Du erstellst den Content.",
-    "Stundenlanges manuelles Planen, Stylen, Shooten und Bearbeiten jedes einzelnen Assets.",
+    "You create the content.",
+    "Hours spent planning, styling, shooting, and editing every individual piece of content.",
   ],
   [
-    "Du beantwortest jede Nachricht.",
-    "Rund um die Uhr über verschiedene Zeitzonen hinweg an dein Smartphone gefesselt, um immer dieselben Fragen zu beantworten.",
+    "You answer every message.",
+    "Tied to your phone around the clock, across time zones, answering the same questions again and again.",
   ],
   [
-    "Du verwaltest mehrere Plattformen.",
-    "Unterschiedliche Algorithmen, Paywalls und Vertriebskanäle jonglieren – ohne eine zentrale Schaltstelle.",
+    "You manage multiple platforms.",
+    "Juggling different algorithms, paywalls, and sales channels without one central place to manage it all.",
   ],
   [
-    "Und wertvolle Chancen gehen trotzdem verloren.",
-    "Lange Antwortzeiten kosten wertvolle digitale Käufe und Kooperationen.",
+    "And valuable opportunities still slip away.",
+    "Slow responses can cost you valuable digital sales and collaborations.",
   ],
 ];
 function Reality() {
   return (
     <section id="realitaet" className="section reality">
-      <Label number="02">Die Creator-Realität</Label>
+      <Label number="02">The creator reality</Label>
       <div className="editorial-intro">
         <Reveal>
           <h2>
-            Immer noch alles
+            Still managing everything
             <br />
-            alleine managen?
+            alone?
           </h2>
         </Reveal>
-        <ScrollText text="Der traditionelle Creator-Alltag zwingt dich dazu, zehn Rollen gleichzeitig zu übernehmen – und raubt dir die Energie für das, was wirklich zählt." />
+        <ScrollText text="The everyday demands of being a creator force you to juggle ten roles at once, draining your energy for what really matters." />
       </div>
       <div className="reality-grid">
         <Reveal className="challenge-list">
@@ -368,26 +367,26 @@ function Reality() {
         <Reveal className="reality-image">
           <img
             src={img("timeline")}
-            alt="Timeline einer Videobearbeitung"
+            alt="A video editing timeline"
             loading="lazy"
           />
-          <span>CONTENT. RUND UM DIE UHR.</span>
+          <span>CONTENT. AROUND THE CLOCK.</span>
         </Reveal>
         <Reveal className="reality-image" delay={0.12}>
           <img
             src={img("content-editing")}
-            alt="Mark arbeitet am Schnittplatz im Studio"
+            alt="Mark working at an editing desk in the studio"
             loading="lazy"
           />
-          <span>ZEIT FÜR EIN BESSERES SYSTEM.</span>
+          <span>TIME FOR A BETTER SYSTEM.</span>
         </Reveal>
       </div>
       <Reveal className="reality-quote">
-        <small>DAS ACADEMY-PARADIGMA</small>
+        <small>THE ACADEMY APPROACH</small>
         <p>
-          „Du musst nicht härter arbeiten.
+          “You don’t need to work harder.
           <br />
-          <span>Du brauchst ein besseres System.“</span>
+          <span>You need a better system.”</span>
         </p>
         <ArrowDown size={28} />
       </Reveal>
@@ -400,34 +399,34 @@ function MeetMark() {
     {
       role: "Creator.",
       photo: "mark-studio",
-      desc: "Creator Erfahrung · Produktionswissen",
-      alt: "Mark in seinem Studio, neben Kamera und Schnittplatz",
+      desc: "Creator experience · Production expertise",
+      alt: "Mark in his studio beside a camera and editing desk",
     },
     {
       role: "Mentor.",
       photo: "mark-mentor",
-      desc: "Persönliche Begleitung",
-      alt: "Mark bei einem Workshop mit Creatorn",
+      desc: "Personal guidance",
+      alt: "Mark leading a workshop with creators",
     },
     {
-      role: "Branchenverbinder.",
+      role: "Industry connector.",
       photo: "network",
-      desc: "Netzwerk · Zusammenarbeit",
-      alt: "Mark mit einem Produktionsteam im Studio",
+      desc: "Network · Collaboration",
+      alt: "Mark with a production team in the studio",
     },
   ];
   return (
     <section id="mark" className="section meet-mark">
-      <Label number="03">Lerne Mark kennen</Label>
+      <Label number="03">Meet Mark</Label>
       <div className="meet-heading">
         <h2>
-          Lerne Mark
+          Meet Mark
           <br />
-          <span>Aurel kennen.</span>
+          <span>Aurel.</span>
         </h2>
-        <p>Creator. Mentor. Branchenverbinder.</p>
+        <p>Creator. Mentor. Industry connector.</p>
       </div>
-      <div className="role-tabs" role="group" aria-label="Marks Rollen">
+      <div className="role-tabs" role="group" aria-label="Mark’s roles">
         {roles.map((role, i) => (
           <button
             key={role.role}
@@ -459,16 +458,14 @@ function MeetMark() {
         </div>
       ))}
       <Reveal className="meet-bio">
-        <span className="eyebrow">ERFAHRUNG, DIE VERBINDET.</span>
+        <span className="eyebrow">EXPERIENCE THAT CONNECTS.</span>
         <p>
-          Mark verbindet langjährige Erfahrung aus Produktionen,
-          Creator-Projekten und persönlichen Kontakten mit einem professionellen
-          System für Creator-Entwicklung.
+          Mark brings together years of experience in production, creator projects, and industry relationships with a professional system for creator development.
         </p>
         <a
           className="round-link"
           href="#partnerschaft"
-          aria-label="Mehr über die Zusammenarbeit"
+          aria-label="More about working together"
         >
           <ArrowDown />
         </a>
@@ -479,25 +476,25 @@ function MeetMark() {
 
 const pillars = [
   {
-    title: "POSITIONIERUNG",
-    text: "Entwickle deine Identität, deine Zielgruppe und deine Richtung.",
+    title: "POSITIONING",
+    text: "Define your identity, understand your audience, and find your direction.",
     photo: "positioning",
     thumb: "coaching",
-    alt: "Mark und eine Creatorin planen gemeinsam Inhalte",
+    alt: "Mark and a creator planning content together",
   },
   {
     title: "CONTENT",
-    text: "Erstelle professionelle Inhalte mit Struktur und Planung.",
+    text: "Create professional content with a clear structure and plan.",
     photo: "production",
     thumb: "production-detail",
-    alt: "Kamera-Team bei einer Produktion mit Mark",
+    alt: "A camera crew working on a production with Mark",
   },
   {
     title: "COMMERCE",
-    text: "Verwandle Aufmerksamkeit in digitale Angebote.",
+    text: "Turn attention into digital products and offers.",
     photo: "commerce",
     thumb: "commerce-detail",
-    alt: "Mark zeigt Creatorn digitale Angebote auf einem Smartphone",
+    alt: "Mark showing creators digital offers on a smartphone",
   },
 ];
 function PhotoPanel({
@@ -524,7 +521,7 @@ function PhotoPanel({
         style={{ y: reduced ? 0 : y }}
       />
       <a className="panel-explore" href="#partnerschaft">
-        <span>ENTDECKEN</span>
+        <span>EXPLORE</span>
         <ArrowUpRight size={20} />
       </a>
       <span className="panel-number">0{index + 1} / 03</span>
@@ -546,15 +543,15 @@ function System() {
   return (
     <section id="system" className="system">
       <div className="section system-intro">
-        <Label number="04">Das Agentur-System</Label>
+        <Label number="04">The agency system</Label>
         <Reveal className="system-title">
-          <span className="eyebrow">DEINE KREATIVITÄT. UNSERE STRUKTUR.</span>
+          <span className="eyebrow">YOUR CREATIVITY. OUR STRUCTURE.</span>
           <h2>
-            Ein komplettes System
+            A complete system
             <br />
-            hinter deinem
+            behind your
             <br />
-            <span>Creator-Business.</span>
+            <span>Creator Business.</span>
           </h2>
         </Reveal>
       </div>
@@ -567,39 +564,39 @@ function System() {
 function Partnership() {
   const groups = [
     [
-      "Du erhältst",
-      ["Unterstützung", "Content-Hilfe", "Technologie", "Strategie"],
+      "You receive",
+      ["Support", "Content support", "Technology", "Strategy"],
     ],
     [
-      "Du bringst ein",
-      ["Persönlichkeit", "Content", "Beteiligung", "Freigaben"],
+      "You bring",
+      ["Personality", "Content", "Participation", "Approvals"],
     ],
     [
-      "Gemeinsam entwickeln wir",
+      "Together, we build",
       [
-        "Langfristige Zusammenarbeit",
-        "Creator-Wachstum",
-        "Professionelle Prozesse",
+        "Long-term collaboration",
+        "Creator growth",
+        "Professional processes",
       ],
     ],
   ] as const;
   return (
     <section id="partnerschaft" className="section partnership light-section">
-      <Label number="05">Die Zusammenarbeit</Label>
+      <Label number="05">The partnership</Label>
       <Reveal className="partnership-heading">
         <h2>
-          Coaching inklusive.
+          Coaching included.
           <br />
           <span>
-            Klare Strukturen
+            A clear structure
             <br />
-            von Anfang an.
+            from day one.
           </span>
         </h2>
         <p>
-          Persönliche Begleitung.
+          Personal guidance.
           <br />
-          Ein gemeinsamer Weg.
+          A shared path forward.
         </p>
       </Reveal>
       <div className="partnership-grid">
@@ -621,13 +618,13 @@ function Partnership() {
       <div className="partnership-photo">
         <img
           src={img("coaching")}
-          alt="Mark im persönlichen Gespräch mit einer Creatorin"
+          alt="Mark in a one-to-one conversation with a creator"
           loading="lazy"
         />
         <span>
-          Persönlich.
+          Personal.
           <br />
-          Von Anfang an.
+          From day one.
         </span>
       </div>
     </section>
@@ -637,36 +634,36 @@ function Team() {
   const team = [
     [
       "Mark",
-      "Erfahrung. Guidance. Netzwerk.",
+      "Experience. Guidance. Connections.",
       "mark-portrait",
-      "Mark Aurel im Kreativstudio",
+      "Mark Aurel in a creative studio",
     ],
     [
       "Team",
-      "Marketing. Technologie. Organisation.",
+      "Marketing. Technology. Operations.",
       "production",
-      "Das Produktionsteam bei der Arbeit",
+      "The production team at work",
     ],
     [
       "Creator",
-      "Identität. Content. Wachstum.",
+      "Identity. Content. Growth.",
       "creator",
-      "Creatorin plant gemeinsam mit Mark Inhalte",
+      "A creator planning content with Mark",
     ],
   ];
   return (
     <section className="section team">
-      <Label number="06">Gemeinsam mehr bewegen</Label>
+      <Label number="06">Stronger together</Label>
       <Reveal className="split-heading">
         <h2>
           Mark + Team
           <br />
-          <span>+ du.</span>
+          <span>+ you.</span>
         </h2>
         <p>
-          Gemeinsam → Creator-Business.
+          Together → Your creator business.
           <br />
-          Jeder bringt seine Stärke ein.
+          Everyone brings their own strengths.
         </p>
       </Reveal>
       <div className="team-grid">
@@ -688,11 +685,11 @@ function Team() {
   );
 }
 const workflow = [
-  ["Social Media", "Dein Content. Deine Identität."],
-  ["Community", "Verbindungen zu deiner Zielgruppe."],
-  ["AI Unterstützung", "Technologie als Unterstützung."],
-  ["SnapSell", "Deine digitalen Angebote."],
-  ["Verkauf", "Content und Commerce zusammenbringen."],
+  ["Social Media", "Your content. Your identity."],
+  ["Community", "Connections with your audience."],
+  ["AI Support", "Technology that supports you."],
+  ["SnapSell", "Your digital products and offers."],
+  ["Sales", "Bringing content and commerce together."],
 ];
 function Workflow() {
   const [active, setActive] = useState(0);
@@ -709,17 +706,17 @@ function Workflow() {
             <span>Commerce.</span>
           </h2>
           <p>
-            Persönliche Erfahrung.
+            Personal experience.
             <br />
-            Moderne Technologie.
+            Modern technology.
           </p>
           <div className="workflow-image">
             <img
               src={img(active < 2 ? "network" : "commerce-detail")}
               alt={
                 active < 2
-                  ? "Creator-Netzwerk im Studio"
-                  : "Mark erklärt ein digitales Angebot"
+                  ? "Creators networking in the studio"
+                  : "Mark explaining a digital offer"
               }
               loading="lazy"
             />
@@ -765,28 +762,28 @@ function Production() {
     <section ref={ref} className="production-section" id="produktion">
       <motion.img
         src={img("production")}
-        alt="Filmproduktion mit Mark und einem Kamerateam"
+        alt="A film production with Mark and a camera crew"
         loading="lazy"
         style={{ scale: reduced ? 1 : scale }}
       />
       <div className="production-overlay" />
       <div className="production-content">
-        <Label number="08">Produktion & Content</Label>
+        <Label number="08">Production & content</Label>
         <Reveal>
           <h2>
-            Erstelle Content
+            Create content
             <br />
-            <em>mit Strategie.</em>
+            <em>with a strategy.</em>
           </h2>
         </Reveal>
         <div className="production-bottom">
           <p>
-            Planen. Erstellen.
+            Plan. Create.
             <br />
-            Veröffentlichen. Wachsen.
+            Publish. Grow.
           </p>
           <Action href="#bewerbung" light>
-            Dein nächster Schritt
+            Your next step
           </Action>
         </div>
       </div>
@@ -796,44 +793,43 @@ function Production() {
 function Cyprus() {
   return (
     <section id="zypern" className="section cyprus">
-      <Label number="09">Zypern Experience</Label>
+      <Label number="09">Cyprus Experience</Label>
       <div className="cyprus-grid">
         <Reveal className="cyprus-photo">
           <img
             src={img("workshop")}
-            alt="Einblick in die gemeinsame Arbeit im Produktionsstudio"
+            alt="A glimpse of our work together in the production studio"
             loading="lazy"
           />
-          <span>EINBLICKE IN UNSERE ZUSAMMENARBEIT</span>
+          <span>A GLIMPSE OF OUR WORK TOGETHER</span>
         </Reveal>
         <Reveal className="cyprus-copy">
-          <span className="eyebrow">NEUE PERSPEKTIVEN.</span>
+          <span className="eyebrow">NEW PERSPECTIVES.</span>
           <h2>
-            Treffen.
+            Meet.
             <br />
-            Produzieren.
+            Create.
             <br />
-            Verbinden.
+            Connect.
             <br />
-            <span>In Zypern.</span>
+            <span>In Cyprus.</span>
           </h2>
           <div className="cyprus-list">
             <span>
               Training Sessions <ArrowUpRight size={18} />
             </span>
             <span>
-              Produktionstage <ArrowUpRight size={18} />
+              Production days <ArrowUpRight size={18} />
             </span>
             <span>
               Creator Networking <ArrowUpRight size={18} />
             </span>
           </div>
           <p className="fine-print">
-            Verfügbare Möglichkeiten hängen von Auswahl, Verfügbarkeit und
-            vereinbarten Bedingungen ab.
+            Opportunities depend on selection, availability, and the agreed terms.
           </p>
           <a className="text-link" href="#bewerbung">
-            Interesse anmelden <ArrowRight size={18} />
+            Register your interest <ArrowRight size={18} />
           </a>
         </Reveal>
       </div>
@@ -842,40 +838,40 @@ function Cyprus() {
 }
 const faqs = [
   [
-    "Was bietet die Mark Aurel Creator Agency?",
-    "Persönliche Unterstützung, professionelle Content-Hilfe und moderne Technologie – als System aus Positionierung, Content und Commerce.",
+    "What does the Mark Aurel Creator Agency offer?",
+    "Personal support, professional content guidance, and modern technology, brought together in a system built around positioning, content, and commerce.",
   ],
   [
-    "Ist Coaching in der Zusammenarbeit enthalten?",
-    "Ja. Coaching ist inklusive, mit klaren Strukturen von Anfang an. Die konkrete Zusammenarbeit wird gemeinsam vereinbart.",
+    "Is coaching included in the partnership?",
+    "Yes. Coaching is included, with a clear structure from day one. We agree on the details of the partnership together.",
   ],
   [
-    "Wer ist Mark Aurel?",
-    "Creator, Mentor und Branchenverbinder. Mark verbindet langjährige Erfahrung aus Produktionen, Creator-Projekten und persönlichen Kontakten mit einem professionellen System für Creator-Entwicklung.",
+    "Who is Mark Aurel?",
+    "A creator, mentor, and industry connector. Mark brings years of production experience, creator projects, and industry relationships into a professional system for creator development.",
   ],
   [
-    "Gehört ein Aufenthalt auf Zypern dazu?",
-    "Möglichkeiten in Zypern hängen von Auswahl, Verfügbarkeit und den vereinbarten Bedingungen ab. Ein Aufenthalt ist nicht automatisch enthalten.",
+    "Is a stay in Cyprus included?",
+    "Opportunities in Cyprus depend on selection, availability, and the agreed terms. A stay is not automatically included.",
   ],
   [
-    "Wie läuft der nächste Schritt ab?",
-    "Bewerben, Gespräch, Vereinbarung, Start. Teile uns mit, wo du stehst und was du aufbauen möchtest.",
+    "What happens next?",
+    "Apply, have a conversation, agree on the details, and get started. Tell us where you are now and what you want to build.",
   ],
 ];
 function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
   return (
     <section id="faq" className="section faq light-section">
-      <Label number="10">Gut zu wissen</Label>
+      <Label number="10">Good to know</Label>
       <div className="faq-grid">
         <div>
           <h2>
-            Deine Fragen.
+            Your questions.
             <br />
-            <span>Klare Antworten.</span>
+            <span>Clear answers.</span>
           </h2>
           <a className="text-link" href="#bewerbung">
-            Lass uns sprechen <ArrowUpRight size={18} />
+            Let’s talk <ArrowUpRight size={18} />
           </a>
         </div>
         <div>
@@ -917,7 +913,7 @@ function Application() {
     event.preventDefault();
     if (!endpoint) {
       setMessage(
-        "Das Bewerbungsformular ist noch nicht freigeschaltet. Es wurden keine Daten gesendet.",
+        "Applications are not open yet. No information has been sent.",
       );
       setState("error");
       return;
@@ -943,32 +939,32 @@ function Application() {
       });
       if (!response.ok) throw new Error("Submission failed");
       setState("success");
-      setMessage("Vielen Dank. Deine Bewerbung wurde übermittelt.");
+      setMessage("Thank you. Your application has been submitted.");
       form.reset();
     } catch {
       setState("error");
       setMessage(
-        "Deine Bewerbung konnte nicht übermittelt werden. Bitte versuche es später erneut.",
+        "Your application could not be submitted. Please try again later.",
       );
     }
   };
   return (
     <section id="bewerbung" className="section application">
-      <Label number="11">Dein nächster Schritt</Label>
+      <Label number="11">Your next step</Label>
       <Reveal className="application-title">
         <h2>
-          Dein nächster Schritt
+          Your next step
           <br />
-          ist <em>einfach.</em>
+          is <em>simple.</em>
         </h2>
         <p>
-          Persönlichkeit trifft Möglichkeiten.
+          Personality meets opportunity.
           <br />
-          Lass uns herausfinden, was wir gemeinsam aufbauen können.
+          Let’s discover what we can build together.
         </p>
       </Reveal>
       <ol className="application-process">
-        {["Bewerben", "Gespräch", "Vereinbarung", "Start"].map((step, i) => (
+        {["Apply", "Conversation", "Agreement", "Start"].map((step, i) => (
           <li key={step}>
             <small>0{i + 1}</small>
             {step}
@@ -980,24 +976,24 @@ function Application() {
         <div className="application-photo">
           <img
             src={img("mark-portrait")}
-            alt="Mark Aurel freut sich auf ein persönliches Gespräch"
+            alt="Mark Aurel, ready for a personal conversation"
             loading="lazy"
           />
           <div>
             <p>
-              Dein Talent.
+              Your talent.
               <br />
-              Deine Geschichte.
+              Your story.
               <br />
-              <span>Unser gemeinsamer Weg.</span>
+              <span>Our shared journey.</span>
             </p>
             <small>MARK AUREL · CREATOR AGENCY</small>
           </div>
         </div>
         <form onSubmit={handleSubmit} className="application-form">
           <div className="form-heading">
-            <h3>Lass uns kennenlernen.</h3>
-            <span>01 — BEWERBUNG</span>
+            <h3>Let’s get to know you.</h3>
+            <span>01 — APPLICATION</span>
           </div>
           <div className="form-fields">
             <label>
@@ -1005,18 +1001,18 @@ function Application() {
               <input
                 name="name"
                 autoComplete="name"
-                placeholder="Dein Name"
+                placeholder="Your name"
                 required
                 maxLength={120}
               />
             </label>
             <label>
-              E-Mail
+              Email
               <input
                 name="email"
                 type="email"
                 autoComplete="email"
-                placeholder="du@beispiel.de"
+                placeholder="you@example.com"
                 required
                 maxLength={200}
               />
@@ -1025,39 +1021,39 @@ function Application() {
               Instagram
               <input
                 name="instagram"
-                placeholder="@dein.profil"
+                placeholder="@your.profile"
                 required
                 maxLength={150}
               />
             </label>
             <label>
-              Land
+              Country
               <input
                 name="country"
                 autoComplete="country-name"
-                placeholder="Dein Land"
+                placeholder="Your country"
                 required
                 maxLength={100}
               />
             </label>
             <label className="full-field">
-              Creator-Level
+              Creator level
               <select name="level" required defaultValue="">
                 <option value="" disabled>
-                  Wo stehst du gerade?
+                  Where are you right now?
                 </option>
-                <option>Ich stehe am Anfang</option>
-                <option>Ich erstelle bereits Content</option>
-                <option>Ich habe eine Community</option>
-                <option>Ich verdiene mit meinem Content</option>
+                <option>I’m just getting started</option>
+                <option>I already create content</option>
+                <option>I have a community</option>
+                <option>I earn money from my content</option>
               </select>
             </label>
             <label className="full-field">
-              Dein Ziel
+              Your goal
               <textarea
                 name="goal"
                 rows={3}
-                placeholder="Was möchtest du aufbauen?"
+                placeholder="What would you like to build?"
                 required
                 maxLength={2500}
               />
@@ -1069,12 +1065,11 @@ function Application() {
           </label>
           <label className="consent">
             <input type="checkbox" name="consent" required />
-            Ich möchte zur Besprechung meiner Bewerbung kontaktiert werden.
+            I would like to be contacted to discuss my application.
           </label>
           {!endpoint && (
             <p className="form-note">
-              Bewerbungen werden in Kürze freigeschaltet. Aktuell werden keine
-              Daten übermittelt.
+              Applications will open soon. No information is being submitted at this time.
             </p>
           )}
           <button
@@ -1083,7 +1078,7 @@ function Application() {
             type="submit"
           >
             <span>
-              {state === "sending" ? "Wird gesendet …" : "Bewerbung senden"}
+              {state === "sending" ? "Sending …" : "Submit application"}
             </span>
             <ArrowUpRight size={24} />
           </button>
@@ -1125,19 +1120,19 @@ function LegalDialog({
         <button
           className="dialog-close"
           onClick={() => ref.current?.close()}
-          aria-label="Schließen"
+          aria-label="Close"
         >
           <X />
         </button>
         <small>MARK AUREL CREATOR AGENCY</small>
         <h2 id="legal-title">{kind}</h2>
         <p>
-          {kind === "Impressum"
-            ? "Die verifizierten Anbieter- und Kontaktdaten werden vor der Veröffentlichung ergänzt."
-            : "Die vollständigen Datenschutzhinweise werden vor der Freischaltung des Bewerbungsformulars ergänzt."}
+          {kind === "Legal notice"
+            ? "Verified business and contact details will be added before launch."
+            : "The full privacy policy will be added before applications open."}
         </p>
         <button className="dialog-back" onClick={() => ref.current?.close()}>
-          Zurück zur Website <ArrowRight size={18} />
+          Back to the website <ArrowRight size={18} />
         </button>
       </div>
     </dialog>
@@ -1163,9 +1158,9 @@ function Footer({
             <small>CREATOR AGENCY · POWERED BY SNAPSELL</small>
           </a>
           <p>
-            Persönliche Erfahrung. Professionelle Produktion.
+            Personal experience. Professional production.
             <br />
-            Moderne Technologie. Für dein Creator-Business.
+            Modern technology. For your creator business.
           </p>
         </div>
         <nav aria-label="Footer Navigation">
@@ -1177,11 +1172,11 @@ function Footer({
           ))}
         </nav>
         <div className="footer-contact">
-          <span>DEIN TALENT. DEIN NÄCHSTER SCHRITT.</span>
+          <span>YOUR TALENT. YOUR NEXT STEP.</span>
           <a href="#bewerbung">
-            Lass uns
+            Let’s
             <br />
-            sprechen. <ArrowUpRight />
+            talk. <ArrowUpRight />
           </a>
         </div>
       </div>
@@ -1189,22 +1184,22 @@ function Footer({
       <div className="footer-bottom">
         <span>© {new Date().getFullYear()} Mark Aurel Creator Agency</span>
         <div>
-          <button onClick={() => setLegal("Datenschutz")}>Datenschutz</button>
-          <button onClick={() => setLegal("Impressum")}>Impressum</button>
-          <a href="#bewerbung">Kontakt</a>
+          <button onClick={() => setLegal("Privacy policy")}>Privacy policy</button>
+          <button onClick={() => setLegal("Legal notice")}>Legal notice</button>
+          <a href="#bewerbung">Contact</a>
         </div>
         {!reduced && (
           <button
             className="motion-control"
             onClick={() => setPaused(!paused)}
-            aria-label={paused ? "Lauftext fortsetzen" : "Lauftext pausieren"}
+            aria-label={paused ? "Resume scrolling text" : "Pause scrolling text"}
           >
             {paused ? <Play size={13} /> : <Pause size={13} />}
-            <span>{paused ? "Lauftext starten" : "Lauftext pausieren"}</span>
+            <span>{paused ? "Resume scrolling text" : "Pause scrolling text"}</span>
           </button>
         )}
         <a href="#hero" className="back-top">
-          Nach oben <ArrowUpRight size={16} />
+          Back to top <ArrowUpRight size={16} />
         </a>
       </div>
       <LegalDialog kind={legal} close={() => setLegal(null)} />
@@ -1236,13 +1231,13 @@ function Intro({ onComplete }: { onComplete: () => void }) {
         <small>CREATOR AGENCY × SNAPSELL</small>
       </div>
       <button onClick={onComplete}>
-        Überspringen <ArrowUpRight size={16} />
+        Skip intro <ArrowUpRight size={16} />
       </button>
       <span className="intro-count" aria-hidden="true">
         {count.toString().padStart(2, "0")}
         <small>%</small>
       </span>
-      <p>DEIN TALENT. EIN STÄRKERES CREATOR-BUSINESS.</p>
+      <p>YOUR TALENT. A STRONGER CREATOR BUSINESS.</p>
     </motion.div>
   );
 }
@@ -1278,7 +1273,7 @@ export default function StudioPage() {
       </AnimatePresence>
       <div className="studio-site" inert={intro}>
         <a className="skip-link" href="#main-content">
-          Zum Inhalt
+          Skip to content
         </a>
         <Header />
         <main id="main-content">
