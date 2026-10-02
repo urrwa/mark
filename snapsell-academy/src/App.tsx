@@ -11,21 +11,26 @@ export default function App() {
   return (
     <>
       <IntroLoader onComplete={() => setLoaderDone(true)} />
-      <div
-        style={{
-          opacity: loaderDone ? 1 : 0,
-          transition: 'opacity 0.5s ease',
-        }}
-      >
+      <div style={{ opacity: loaderDone ? 1 : 0, transition: 'opacity 0.5s ease' }}>
         <div className="min-h-screen bg-[#050505] text-[#F5F5F2] selection:bg-[#00D084] selection:text-[#050505]">
+          {/* Nav floats above everything */}
           <Navigation />
+
           <main id="main-content">
-            {/* Sticky wrapper: hero stays pinned while Section 2 scrolls over it */}
+            {/* Hero: sticky so Section 2 slides over it */}
             <div style={{ position: "sticky", top: 0, zIndex: 0 }}>
               <HeroSection />
             </div>
-            <ProblemSection />
-            <MeetMarkSection />
+
+            {/* Section 2 — rises over hero */}
+            <div style={{ position: "relative", zIndex: 10 }}>
+              <ProblemSection />
+            </div>
+
+            {/* Section 3 */}
+            <div style={{ position: "relative", zIndex: 10 }}>
+              <MeetMarkSection />
+            </div>
           </main>
         </div>
       </div>

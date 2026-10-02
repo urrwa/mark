@@ -1,247 +1,290 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { motion, useReducedMotion } from "motion/react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// Mixed-color segments — flows naturally, wraps across 4-5 lines at small font
-const HEADLINE_SEGMENTS: { text: string; color: string }[] = [
-  { text: "Dein Talent.", color: "#F5F5F2" },
-  { text: " Ein ", color: "#888" },
-  { text: "stärkeres", color: "#F5F5F2" },
-  { text: " Creator", color: "#00D084" },
-  { text: "-Business.", color: "#F5F5F2" },
-];
+// ── Marquee strip ─────────────────────────────────────────────────────────────
+function Marquee({ prefersReduced }: { prefersReduced: boolean | null }) {
+  const text = "MARK AUREL · CREATOR AGENCY · ";
+  const repeated = Array(8).fill(text).join("");
 
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 2,
+      }}
+    >
+      <div
+        className={prefersReduced ? "" : "marquee-track"}
+        style={{
+          display: "flex",
+          whiteSpace: "nowrap",
+          willChange: "transform",
+        }}
+      >
+        {[0, 1].map(i => (
+          <span
+            key={i}
+            style={{
+              fontFamily: "Space Grotesk, sans-serif",
+              fontWeight: 700,
+              fontSize: "clamp(5rem, 12vw, 10rem)",
+              letterSpacing: "-0.02em",
+              color: "rgba(255,255,255,0.055)",
+              lineHeight: 1,
+              userSelect: "none",
+              flexShrink: 0,
+            }}
+          >
+            {repeated}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Main section ──────────────────────────────────────────────────────────────
 export default function HeroSection() {
   const prefersReduced = useReducedMotion();
-  const [ready, setReady] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    timerRef.current = setTimeout(() => setReady(true), 120);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, []);
-
-  const dur = prefersReduced ? 0 : 1;
-  const stagger = prefersReduced ? 0 : 0.15;
 
   return (
     <section
       id="hero"
-      aria-label="Hero"
       style={{
         position: "relative",
         width: "100%",
         minHeight: "100svh",
+        background: "linear-gradient(160deg, #111417 0%, #050505 60%)",
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
       }}
     >
-      {/* Background image */}
+      {/* Layer 2: Scrolling marquee */}
+      <Marquee prefersReduced={prefersReduced} />
+
+      {/* Layer 3: Mark portrait cutout */}
       <motion.div
         initial={{ opacity: 0, scale: prefersReduced ? 1 : 1.03 }}
-        animate={ready ? { opacity: 1, scale: 1 } : {}}
-        transition={{ duration: prefersReduced ? 0 : 1.4, ease }}
-        style={{ position: "absolute", inset: 0, zIndex: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.1, ease, delay: 0.3 }}
+        className="mark-portrait"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          right: "clamp(0%, 6vw, 10%)",
+          zIndex: 3,
+          height: "clamp(72vh, 90vh, 96vh)",
+          maxWidth: "clamp(320px, 52vw, 760px)",
+          display: "flex",
+          alignItems: "flex-end",
+          pointerEvents: "none",
+        }}
       >
         <img
-          src="/photos/hero-3.png"
-          alt="Mark Aurel in professional studio environment"
+          src="/photos/mark-hero-cutout.png"
+          alt="Mark Aurel – Gründer der Creator Agency"
           style={{
-            width: "100%",
             height: "100%",
-            objectFit: "cover",
-            objectPosition: "center right",
+            width: "auto",
+            objectFit: "contain",
+            objectPosition: "bottom center",
             display: "block",
           }}
-          fetchPriority="high"
-          decoding="async"
         />
       </motion.div>
 
-      {/* Gradient — stronger left for text, fade at bottom */}
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0, zIndex: 1,
-        background: "linear-gradient(105deg, rgba(5,5,5,0.93) 0%, rgba(5,5,5,0.80) 38%, rgba(5,5,5,0.35) 65%, rgba(5,5,5,0.08) 100%)",
-      }} />
-      <div aria-hidden="true" style={{
-        position: "absolute", bottom: 0, left: 0, right: 0, height: "220px", zIndex: 1,
-        background: "linear-gradient(to top, rgba(5,5,5,0.72) 0%, rgba(5,5,5,0) 100%)",
-      }} />
+      {/* Layer 4: Headline + copy + CTAs */}
+      <div
+        className="hero-content"
+        style={{
+          position: "relative",
+          zIndex: 4,
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          maxWidth: "1440px",
+          width: "100%",
+          margin: "0 auto",
+          padding: "clamp(6rem, 14vh, 10rem) clamp(1.25rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem)",
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ maxWidth: "clamp(300px, 44vw, 540px)" }}>
 
-      {/* Content */}
-      <div style={{
-        position: "relative", zIndex: 2, flex: 1,
-        display: "flex", flexDirection: "column",
-        maxWidth: "1400px", width: "100%", margin: "0 auto",
-        padding: "0 clamp(1.25rem, 4vw, 3rem)",
-        paddingTop: "calc(72px + clamp(4.5rem, 11vh, 8rem))",
-        paddingBottom: "clamp(3.5rem, 7vh, 5.5rem)",
-        boxSizing: "border-box",
-      }}>
-        {/* Upper: eyebrow + headline + CTAs */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
           {/* Eyebrow */}
           <motion.div
-            initial={{ opacity: 0, y: prefersReduced ? 0 : 16 }}
-            animate={ready ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: dur * 0.7, ease, delay: stagger * 0.5 }}
-            style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}
+            initial={{ opacity: 0, y: prefersReduced ? 0 : 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease, delay: 0.1 }}
+            style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "clamp(1rem, 2.5vh, 1.8rem)" }}
           >
-            <span style={{ display: "block", width: "28px", height: "1px", background: "#00D084", flexShrink: 0 }} />
+            <span style={{ display: "inline-block", width: "28px", height: "2px", background: "#00D084", flexShrink: 0 }} />
             <span style={{
-              fontFamily: "Manrope, sans-serif", fontWeight: 500, fontSize: "0.68rem",
-              letterSpacing: "0.18em", textTransform: "uppercase", color: "#A5A5A5",
+              fontFamily: "Manrope, sans-serif",
+              fontWeight: 500,
+              fontSize: "0.63rem",
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: "#00D084",
             }}>
-              MARK AUREL CREATOR AGENCY&nbsp;·&nbsp;
-              <span style={{ color: "#00D084" }}>Powered by SnapSell</span>
+              Powered by SnapSell
             </span>
           </motion.div>
 
-          {/* Headline — flows naturally like Arc Studio, wraps at ~60% container */}
+          {/* H1 */}
           <motion.h1
-            initial={{ opacity: 0, y: prefersReduced ? 0 : 28 }}
-            animate={ready ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: dur * 0.9, ease, delay: stagger + 0.1 }}
+            initial={{ opacity: 0, y: prefersReduced ? 0 : 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, ease, delay: 0.25 }}
             style={{
-              margin: 0,
-              padding: 0,
               fontFamily: "Space Grotesk, sans-serif",
-              fontWeight: 500,
-              fontSize: "clamp(1.6rem, 3.2vw, 3.4rem)",
-              letterSpacing: "-0.025em",
-              lineHeight: 1.15,
-              maxWidth: "50%",
+              fontWeight: 700,
+              fontSize: "clamp(2.5rem, 6.5vw, 5.5rem)",
+              lineHeight: 1.0,
+              letterSpacing: "-0.03em",
+              color: "#F5F5F2",
+              margin: "0 0 clamp(1rem, 2.5vh, 1.8rem) 0",
             }}
           >
-            {HEADLINE_SEGMENTS.map((seg, i) => (
-              <span key={i} style={{ color: seg.color }}>{seg.text}</span>
-            ))}
+            DEIN TALENT.<br />
+            EIN STÄRKERES<br />
+            <span style={{ color: "#00D084" }}>CREATOR-BUSINESS.</span>
           </motion.h1>
+
+          {/* Supporting copy */}
+          <motion.p
+            initial={{ opacity: 0, y: prefersReduced ? 0 : 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, ease, delay: 0.4 }}
+            style={{
+              fontFamily: "Manrope, sans-serif",
+              fontWeight: 400,
+              fontSize: "clamp(0.9rem, 1.2vw, 1rem)",
+              lineHeight: 1.72,
+              color: "#A5A5A5",
+              margin: "0 0 clamp(1.8rem, 4vh, 2.8rem) 0",
+              maxWidth: "390px",
+            }}
+          >
+            Baue deine Marke mit persönlicher Unterstützung,
+            professioneller Content-Hilfe und moderner
+            Technologie auf.
+          </motion.p>
 
           {/* CTAs */}
           <motion.div
-            initial={{ opacity: 0, y: prefersReduced ? 0 : 20 }}
-            animate={ready ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: dur * 0.7, ease, delay: stagger * 4 + 0.1 }}
-            style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginTop: "2.5rem" }}
+            initial={{ opacity: 0, y: prefersReduced ? 0 : 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease, delay: 0.55 }}
+            style={{ display: "flex", gap: "0.9rem", flexWrap: "wrap" }}
           >
-            <HeroCTA href="#bewerbung" variant="primary" label="BEWERBUNG STARTEN" />
-            <HeroCTA href="#snapsell" variant="ghost" label="SO FUNKTIONIERT ES" />
+            <a
+              href="#bewerbung"
+              onClick={e => { e.preventDefault(); document.querySelector("#bewerbung")?.scrollIntoView({ behavior: "smooth" }); }}
+              style={{
+                fontFamily: "Space Grotesk, sans-serif",
+                fontWeight: 700,
+                fontSize: "0.76rem",
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "#050505",
+                background: "#00D084",
+                textDecoration: "none",
+                padding: "0.85rem 2rem",
+                borderRadius: "4px",
+                display: "inline-block",
+                transition: "background 0.18s, transform 0.18s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "#00b873"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "#00D084"; (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; }}
+            >
+              Bewerbung starten
+            </a>
+            <a
+              href="#snapsell"
+              onClick={e => { e.preventDefault(); document.querySelector("#snapsell")?.scrollIntoView({ behavior: "smooth" }); }}
+              style={{
+                fontFamily: "Space Grotesk, sans-serif",
+                fontWeight: 600,
+                fontSize: "0.76rem",
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "#F5F5F2",
+                background: "transparent",
+                textDecoration: "none",
+                padding: "0.85rem 1.6rem",
+                borderRadius: "4px",
+                border: "1px solid rgba(255,255,255,0.18)",
+                display: "inline-block",
+                transition: "border-color 0.18s, transform 0.18s",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.45)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.18)"; (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; }}
+            >
+              So funktioniert es
+            </a>
           </motion.div>
-        </div>
-
-        {/* Bottom row: scroll indicator (left) + supporting paragraph (right) */}
-        <div style={{
-          display: "flex", alignItems: "flex-end", justifyContent: "space-between",
-          gap: "2rem", marginTop: "clamp(3rem, 8vh, 5rem)",
-        }}>
-          {/* Scroll indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={ready ? { opacity: 1 } : {}}
-            transition={{ duration: dur, ease, delay: stagger * 5 }}
-            style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}
-            aria-hidden="true"
-          >
-            <span style={{
-              fontFamily: "Manrope, sans-serif", fontWeight: 400, fontSize: "0.6rem",
-              letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a5a5a",
-            }}>
-              Scroll
-            </span>
-            <ScrollArrow />
-          </motion.div>
-
-          {/* Supporting paragraph */}
-          <motion.p
-            initial={{ opacity: 0, y: prefersReduced ? 0 : 16 }}
-            animate={ready ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: dur * 0.8, ease, delay: stagger * 5 + 0.1 }}
-            className="hero-supporting"
-            style={{
-              margin: 0,
-              fontFamily: "Manrope, sans-serif", fontWeight: 400,
-              fontSize: "clamp(0.82rem, 1.3vw, 0.95rem)",
-              lineHeight: 1.7, color: "#A5A5A5",
-              maxWidth: "320px", textAlign: "right",
-            }}
-          >
-            Baue deine Marke mit persönlicher Unterstützung,<br />
-            professioneller Content-Hilfe und moderner<br />
-            Technologie auf.
-          </motion.p>
         </div>
       </div>
 
+      {/* Scroll indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2, duration: 0.6 }}
+        className="scroll-hint"
+        style={{
+          position: "absolute",
+          bottom: "clamp(1.5rem, 3vh, 2.5rem)",
+          left: "clamp(1.25rem, 5vw, 4rem)",
+          zIndex: 5,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+        }}
+      >
+        <div style={{ width: "1px", height: "36px", background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.25))" }} />
+        <span style={{ fontFamily: "Manrope, sans-serif", fontWeight: 500, fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#444" }}>Scroll</span>
+      </motion.div>
+
       <style>{`
-        @media (max-width: 640px) {
-          .hero-supporting {
-            text-align: left !important;
-            max-width: 100% !important;
+        @keyframes marquee-ltr {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        .marquee-track {
+          animation: marquee-ltr 32s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+          .mark-portrait {
+            right: 50% !important;
+            transform: translateX(50%) !important;
+            height: clamp(44vh, 54vh, 60vh) !important;
+            max-width: 88vw !important;
+            opacity: 0.32 !important;
           }
+          .hero-content {
+            justify-content: flex-end !important;
+            padding-bottom: clamp(4.5rem, 9vh, 6rem) !important;
+          }
+          .scroll-hint { display: none !important; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track { animation: none !important; }
         }
       `}</style>
     </section>
-  );
-}
-
-function ScrollArrow() {
-  return (
-    <motion.svg
-      width="16" height="24" viewBox="0 0 16 24" fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      animate={{ y: [0, 6, 0] }}
-      transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-    >
-      <line x1="8" y1="0" x2="8" y2="18" stroke="#5a5a5a" strokeWidth="1.2" />
-      <polyline points="3,13 8,19 13,13" stroke="#5a5a5a" strokeWidth="1.2" fill="none" strokeLinejoin="round" />
-    </motion.svg>
-  );
-}
-
-function HeroCTA({ href, variant, label }: { href: string; variant: "primary" | "ghost"; label: string }) {
-  const [hovered, setHovered] = useState(false);
-  const isPrimary = variant === "primary";
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const el = document.querySelector(href);
-    if (el) {
-      const top = (el as HTMLElement).getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({ top, behavior: "smooth" });
-    }
-  };
-
-  return (
-    <a
-      href={href}
-      onClick={handleClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: "inline-flex", alignItems: "center", gap: "0.5rem",
-        fontFamily: "Space Grotesk, sans-serif", fontWeight: 600,
-        fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase",
-        textDecoration: "none",
-        padding: isPrimary ? "0.7rem 1.5rem" : "0.7rem 1.25rem",
-        borderRadius: "2px",
-        border: isPrimary ? "none" : "1px solid rgba(255,255,255,0.22)",
-        background: isPrimary ? (hovered ? "#00b873" : "#00D084") : (hovered ? "rgba(255,255,255,0.07)" : "transparent"),
-        color: isPrimary ? "#050505" : "#F5F5F2",
-        transition: "background 0.18s ease, border-color 0.18s ease, transform 0.18s ease",
-        transform: hovered ? "translateY(-1px)" : "translateY(0)",
-        whiteSpace: "nowrap",
-      }}
-    >
-      {label}
-      {!isPrimary && (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"
-          style={{ transition: "transform 0.18s ease", transform: hovered ? "translateX(3px)" : "translateX(0)" }}>
-          <polyline points="4,2 10,6 4,10" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinejoin="round" />
-        </svg>
-      )}
-    </a>
   );
 }
