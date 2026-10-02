@@ -2785,6 +2785,65 @@ html:has(.intro) {
   background: #5ee5ad;
   transform: translateY(-2px);
 }
+
+/* Both languages remain available without opening the mobile menu. */
+.header {
+  gap: 18px;
+}
+.language-switch {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #10141025;
+  border-radius: 5px;
+}
+.language-switch button {
+  min-width: 30px;
+  min-height: 34px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #465043;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.language-switch button[aria-pressed="true"] {
+  color: #f3f4ed;
+  background: #101410;
+}
+.language-switch button:focus-visible {
+  outline: 2px solid #008453;
+  outline-offset: 2px;
+}
+html[lang="de"] .studio-site h2 {
+  hyphens: auto;
+}
+html[lang="de"] .heading-word-mask,
+html[lang="de"] .heading-word-mask > span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1000px) {
+  .desktop-nav { display: none; }
+  .menu-toggle { display: block; }
+  .header .language-switch { margin-left: auto; }
+  .header .header-apply { margin-left: 0; }
+}
+@media (max-width: 600px) {
+  .header { gap: 7px; }
+  .language-switch { padding: 2px; }
+  .language-switch button { min-width: 25px; min-height: 32px; font-size: 9px; }
+  .header-apply svg { display: none; }
+}
+@media (max-width: 380px) {
+  .header { padding: 10px 8px; gap: 5px; }
+  .header .brand > span { font-size: 14px; gap: 5px; }
+  .header .brand small { font-size: 5px; }
+  .header .header-apply { padding: 11px 7px; font-size: 8px; }
+}
 .role-tabs button {
   transition:
     color 0.3s,

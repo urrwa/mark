@@ -1,3 +1,4 @@
+import { useLanguage, LanguageSwitch } from "./Language";
 import {
   Children,
   cloneElement,
@@ -350,6 +351,7 @@ function Marquee({
 }
 
 function Header() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
@@ -376,7 +378,7 @@ function Header() {
       <a
         className="brand"
         href="#hero"
-        aria-label="Mark Aurel Creator Agency – Home"
+        aria-label={t("Mark Aurel Creator Agency – Home")}
       >
         <span>
           MARK AUREL<span className="brand-dot">✳</span>
@@ -385,26 +387,27 @@ function Header() {
           CREATOR AGENCY <b>× SNAPSELL</b>
         </small>
       </a>
-      <nav className="desktop-nav" aria-label="Main navigation">
+      <nav className="desktop-nav" aria-label={t("Main navigation")}>
         {navigation.map(([title, href]) => (
           <a key={href} href={href}>
-            {title}
+            {t(title)}
           </a>
         ))}
       </nav>
+      <LanguageSwitch />
       <a
         className="header-apply"
         href="#bewerbung"
         onClick={() => setOpen(false)}
       >
-        Apply <ArrowUpRight size={16} aria-hidden="true" />
+        {t("Apply")} <ArrowUpRight size={16} aria-hidden="true" />
       </a>
       <button
         ref={toggle}
         className="menu-toggle"
         aria-expanded={open}
         aria-controls="mobile-nav"
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label={open ? t("Close menu") : t("Open menu")}
         onClick={() => setOpen(!open)}
       >
         {open ? <X /> : <Menu />}
@@ -412,13 +415,13 @@ function Header() {
       <nav
         id="mobile-nav"
         className="mobile-nav"
-        aria-label="Mobile Navigation"
+        aria-label={t("Mobile Navigation")}
         hidden={!open}
       >
         {navigation.map(([title, href], i) => (
           <a key={href} href={href} onClick={() => setOpen(false)}>
             <small>0{i + 1}</small>
-            {title}
+            {t(title)}
             <ArrowUpRight size={18} />
           </a>
         ))}
@@ -435,6 +438,7 @@ function Hero({
   setPaused: (value: boolean) => void;
   ready: boolean;
 }) {
+  const { t } = useLanguage();
   const reduced = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -456,7 +460,7 @@ function Hero({
         <motion.img
           className="hero-portrait"
           src={img("mark-cutout")}
-          alt="Mark Aurel, founder of the Creator Agency"
+          alt={t("Mark Aurel, founder of the Creator Agency")}
           width="540"
           height="768"
           fetchPriority="high"
@@ -471,44 +475,43 @@ function Hero({
         <div className="hero-side-note">
           <span>CREATOR.</span>
           <span>MENTOR.</span>
-          <span>INDUSTRY CONNECTOR.</span>
+          <span>{t("INDUSTRY CONNECTOR.")}</span>
         </div>
         {!reduced && (
           <button
             className="hero-motion"
             onClick={() => setPaused(!paused)}
             aria-label={
-              paused ? "Resume scrolling text" : "Pause scrolling text"
+              paused ? t("Resume scrolling text") : t("Pause scrolling text")
             }
           >
             {paused ? <Play size={12} /> : <Pause size={12} />}
-            {paused ? "RESUME TEXT" : "PAUSE TEXT"}
+            {paused ? t("RESUME TEXT") : t("PAUSE TEXT")}
           </button>
         )}
         <a className="hero-scroll" href="#realitaet">
-          <ArrowDown size={16} /> EXPLORE
+          <ArrowDown size={16} /> {t("EXPLORE")}
         </a>
         <span className="hero-signature">
-          Personal. Professional.
+          {t("Personal. Professional.")}
           <br />
-          Moving forward with you.
+          {t("Moving forward with you.")}
         </span>
       </motion.div>
       <div className="hero-bottom">
         <AnimatedHeading as="h1" ready={ready}>
-          Your talent.
+          {t("Your talent.")}
           <br />
-          A stronger
-          <br className="mobile-br" /> <span>Creator Business.</span>
+          {t("A stronger")}
+          <br className="mobile-br" /> <span>{t("Creator Business.")}</span>
         </AnimatedHeading>
         <p>
-          Build your brand with personal support, professional content guidance,
-          and modern technology.
+          {t("Build your brand with personal support, professional content guidance, and modern technology.")}
         </p>
         <div className="hero-actions">
-          <Action href="#bewerbung">Start your application</Action>
+          <Action href="#bewerbung">{t("Start your application")}</Action>
           <a className="text-link" href="#system">
-            How it works <ArrowRight size={16} />
+            {t("How it works")} <ArrowRight size={16} />
           </a>
         </div>
       </div>
@@ -535,18 +538,19 @@ const challenges = [
   ],
 ];
 function Reality() {
+  const { t } = useLanguage();
   return (
     <section id="realitaet" className="section reality">
-      <Label number="02">The creator reality</Label>
+      <Label number="02">{t("The creator reality")}</Label>
       <div className="editorial-intro">
         <Reveal>
           <AnimatedHeading>
-            Still managing everything
+            {t("Still managing everything")}
             <br />
-            alone?
+            {t("alone?")}
           </AnimatedHeading>
         </Reveal>
-        <ScrollText text="The everyday demands of being a creator force you to juggle ten roles at once, draining your energy for what really matters." />
+        <ScrollText text={t("The everyday demands of being a creator force you to juggle ten roles at once, draining your energy for what really matters.")} />
       </div>
       <div className="reality-grid">
         <Reveal className="challenge-list">
@@ -554,8 +558,8 @@ function Reality() {
             <article key={title}>
               <span className="number">0{i + 1}</span>
               <div>
-                <h3>{title}</h3>
-                <p>{description}</p>
+                <h3>{t(title)}</h3>
+                <p>{t(description)}</p>
               </div>
             </article>
           ))}
@@ -563,26 +567,26 @@ function Reality() {
         <Reveal className="reality-image" variant="image" delay={0.12}>
           <img
             src={img("timeline")}
-            alt="A video editing timeline"
+            alt={t("A video editing timeline")}
             loading="lazy"
           />
-          <span>CONTENT. AROUND THE CLOCK.</span>
+          <span>{t("CONTENT. AROUND THE CLOCK.")}</span>
         </Reveal>
         <Reveal className="reality-image" variant="image" delay={0.28}>
           <img
             src={img("content-editing")}
-            alt="Mark working at an editing desk in the studio"
+            alt={t("Mark working at an editing desk in the studio")}
             loading="lazy"
           />
-          <span>TIME FOR A BETTER SYSTEM.</span>
+          <span>{t("TIME FOR A BETTER SYSTEM.")}</span>
         </Reveal>
       </div>
       <Reveal className="reality-quote">
-        <small>THE ACADEMY APPROACH</small>
+        <small>{t("THE ACADEMY APPROACH")}</small>
         <p>
-          “You don’t need to work harder.
+          {t("“You don’t need to work harder.")}
           <br />
-          <span>You need a better system.”</span>
+          <span>{t("You need a better system.”")}</span>
         </p>
         <ArrowDown size={28} />
       </Reveal>
@@ -590,39 +594,40 @@ function Reality() {
   );
 }
 function MeetMark() {
+  const { t } = useLanguage();
   const [active, setActive] = useState(0);
   const roles = [
     {
       role: "Creator.",
       photo: "mark-studio",
-      desc: "Creator experience · Production expertise",
-      alt: "Mark in his studio beside a camera and editing desk",
+      desc: t("Creator experience · Production expertise"),
+      alt: t("Mark in his studio beside a camera and editing desk"),
     },
     {
       role: "Mentor.",
       photo: "mark-mentor",
-      desc: "Personal guidance",
-      alt: "Mark leading a workshop with creators",
+      desc: t("Personal guidance"),
+      alt: t("Mark leading a workshop with creators"),
     },
     {
-      role: "Industry connector.",
+      role: t("Industry connector."),
       photo: "network",
-      desc: "Network · Collaboration",
-      alt: "Mark with a production team in the studio",
+      desc: t("Network · Collaboration"),
+      alt: t("Mark with a production team in the studio"),
     },
   ];
   return (
     <section id="mark" className="section meet-mark">
-      <Label number="03">Meet Mark</Label>
+      <Label number="03">{t("About Mark")}</Label>
       <div className="meet-heading">
         <AnimatedHeading>
-          Meet Mark
+          {t("Meet Mark")}
           <br />
-          <span>Aurel.</span>
+          <span>{t("Aurel.")}</span>
         </AnimatedHeading>
-        <p>Creator. Mentor. Industry connector.</p>
+        <p>{t("Creator. Mentor. Industry connector.")}</p>
       </div>
-      <div className="role-tabs" role="group" aria-label="Mark’s roles">
+      <div className="role-tabs" role="group" aria-label={t("Mark’s roles")}>
         {roles.map((role, i) => (
           <button
             key={role.role}
@@ -632,7 +637,7 @@ function MeetMark() {
             onClick={() => setActive(i)}
           >
             <small>0{i + 1}</small>
-            {role.role}
+            {t(role.role)}
             <ArrowUpRight size={20} />
           </button>
         ))}
@@ -646,24 +651,22 @@ function MeetMark() {
           hidden={active !== i}
           className="meet-panel"
         >
-          <img src={img(role.photo)} alt={role.alt} loading="lazy" />
+          <img src={img(role.photo)} alt={t(role.alt)} loading="lazy" />
           <div className="meet-panel-caption">
-            <span>{role.desc}</span>
+            <span>{t(role.desc)}</span>
             <span>MARK AUREL ↗</span>
           </div>
         </div>
       ))}
       <Reveal className="meet-bio">
-        <span className="eyebrow">EXPERIENCE THAT CONNECTS.</span>
+        <span className="eyebrow">{t("EXPERIENCE THAT CONNECTS.")}</span>
         <p>
-          Mark brings together years of experience in production, creator
-          projects, and industry relationships with a professional system for
-          creator development.
+          {t("Mark brings together years of experience in production, creator projects, and industry relationships with a professional system for creator development.")}
         </p>
         <a
           className="round-link"
           href="#partnerschaft"
-          aria-label="More about working together"
+          aria-label={t("More about working together")}
         >
           <ArrowDown />
         </a>
@@ -702,6 +705,7 @@ function PhotoPanel({
   panel: (typeof pillars)[number];
   index: number;
 }) {
+  const { t } = useLanguage();
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({
@@ -720,16 +724,16 @@ function PhotoPanel({
       <motion.img
         className="panel-background"
         src={img(panel.photo)}
-        alt={panel.alt}
+        alt={t(panel.alt)}
         loading="lazy"
         style={{ y: reduced ? 0 : y }}
       />
       <a
         className="panel-explore"
         href="#partnerschaft"
-        aria-label={`Explore ${panel.title.toLowerCase()} support`}
+        aria-label={t(`Explore ${panel.title.toLowerCase()} support`)}
       >
-        <span>EXPLORE</span>
+        <span>{t("EXPLORE")}</span>
         <ArrowUpRight size={20} />
       </a>
       <span className="panel-number">0{index + 1} / 03</span>
@@ -739,10 +743,10 @@ function PhotoPanel({
       >
         <h3>
           <small>0{index + 1}</small>
-          {panel.title}
+          {t(panel.title)}
         </h3>
         <img src={img(panel.thumb)} alt="" loading="lazy" />
-        <p>{panel.text}</p>
+        <p>{t(panel.text)}</p>
       </motion.div>
       <span className="panel-footer">
         MARK AUREL CREATOR AGENCY <span>POWERED BY SNAPSELL</span>
@@ -751,18 +755,19 @@ function PhotoPanel({
   );
 }
 function System() {
+  const { t } = useLanguage();
   return (
     <section id="system" className="system">
       <div className="section system-intro">
-        <Label number="04">The agency system</Label>
+        <Label number="04">{t("The agency system")}</Label>
         <Reveal className="system-title">
-          <span className="eyebrow">YOUR CREATIVITY. OUR STRUCTURE.</span>
+          <span className="eyebrow">{t("YOUR CREATIVITY. OUR STRUCTURE.")}</span>
           <AnimatedHeading>
-            A complete system
+            {t("A complete system")}
             <br />
-            behind your
+            {t("behind your")}
             <br />
-            <span>Creator Business.</span>
+            <span>{t("Creator Business.")}</span>
           </AnimatedHeading>
         </Reveal>
       </div>
@@ -773,37 +778,38 @@ function System() {
   );
 }
 function Partnership() {
+  const { t } = useLanguage();
   const groups = [
-    ["You receive", ["Support", "Content support", "Technology", "Strategy"]],
-    ["You bring", ["Personality", "Content", "Participation", "Approvals"]],
+    [t("You receive"), [t("Support"), t("Content support"), t("Technology"), t("Strategy")]],
+    [t("You bring"), [t("Personality"), "Content", t("Participation"), t("Approvals")]],
     [
-      "Together, we build",
-      ["Long-term collaboration", "Creator growth", "Professional processes"],
+      t("Together, we build"),
+      [t("Long-term collaboration"), t("Creator growth"), t("Professional processes")],
     ],
   ] as const;
   return (
     <section id="partnerschaft" className="section partnership light-section">
-      <Label number="05">The partnership</Label>
+      <Label number="05">{t("The partnership")}</Label>
       <Reveal className="partnership-heading">
         <AnimatedHeading>
-          Coaching included.
+          {t("Coaching included.")}
           <br />
           <span>
-            A clear structure
+            {t("A clear structure")}
             <br />
-            from day one.
+            {t("from day one.")}
           </span>
         </AnimatedHeading>
         <p>
-          Personal guidance.
-          <br />A shared path forward.
+          {t("Personal guidance.")}
+          <br />{t("A shared path forward.")}
         </p>
       </Reveal>
       <div className="partnership-grid">
         {groups.map(([title, items], i) => (
           <Reveal key={title} variant="card" delay={i * 0.15}>
             <small>0{i + 1}</small>
-            <h3>{title}</h3>
+            <h3>{t(title)}</h3>
             <ul>
               {items.map((item) => (
                 <li key={item}>
@@ -818,52 +824,53 @@ function Partnership() {
       <div className="partnership-photo">
         <img
           src={img("coaching")}
-          alt="Mark in a one-to-one conversation with a creator"
+          alt={t("Mark in a one-to-one conversation with a creator")}
           loading="lazy"
         />
         <span>
-          Personal.
+          {t("Personal.")}
           <br />
-          From day one.
+          {t("From day one.")}
         </span>
       </div>
     </section>
   );
 }
 function Team() {
+  const { t } = useLanguage();
   const team = [
     [
       "Mark",
-      "Experience. Guidance. Connections.",
+      t("Experience. Guidance. Connections."),
       "mark-portrait",
-      "Mark Aurel in a creative studio",
+      t("Mark Aurel in a creative studio"),
     ],
     [
       "Team",
-      "Marketing. Technology. Operations.",
+      t("Marketing. Technology. Operations."),
       "production",
-      "The production team at work",
+      t("The production team at work"),
     ],
     [
       "Creator",
-      "Identity. Content. Growth.",
+      t("Identity. Content. Growth."),
       "creator",
-      "A creator planning content with Mark",
+      t("A creator planning content with Mark"),
     ],
   ];
   return (
     <section className="section team">
-      <Label number="06">Stronger together</Label>
+      <Label number="06">{t("Stronger together")}</Label>
       <Reveal className="split-heading">
         <AnimatedHeading>
           Mark + Team
           <br />
-          <span>+ you.</span>
+          <span>{t("+ you.")}</span>
         </AnimatedHeading>
         <p>
-          Together → Your creator business.
+          {t("Together → Your creator business.")}
           <br />
-          Everyone brings their own strengths.
+          {t("Everyone brings their own strengths.")}
         </p>
       </Reveal>
       <div className="team-grid">
@@ -875,14 +882,14 @@ function Team() {
             delay={i * 0.18}
           >
             <div className="team-image">
-              <img src={img(photo)} alt={alt} loading="lazy" />
+              <img src={img(photo)} alt={t(alt)} loading="lazy" />
               <span>0{i + 1}</span>
             </div>
             <h3>
-              {title}
+              {t(title)}
               <ArrowUpRight size={24} />
             </h3>
-            <p>{description}</p>
+            <p>{t(description)}</p>
           </Reveal>
         ))}
       </div>
@@ -897,24 +904,25 @@ const workflow = [
   ["Sales", "Bringing content and commerce together."],
 ];
 function Workflow() {
+  const { t } = useLanguage();
   const [active, setActive] = useState(0);
   const reduced = useReducedMotion();
   return (
     <section id="snapsell" className="section workflow light-section">
-      <Label number="07">AI + SnapSell</Label>
+      <Label number="07">{t("AI + SnapSell")}</Label>
       <div className="workflow-grid">
         <div>
           <AnimatedHeading>
-            Content.
+            {t("Content.")}
             <br />
-            Community.
+            {t("Community.")}
             <br />
-            <span>Commerce.</span>
+            <span>{t("Commerce.")}</span>
           </AnimatedHeading>
           <p>
-            Personal experience.
+            {t("Personal experience.")}
             <br />
-            Modern technology.
+            {t("Modern technology.")}
           </p>
           <div className="workflow-image">
             <AnimatePresence initial={false}>
@@ -927,8 +935,8 @@ function Workflow() {
                 transition={{ duration: reduced ? 0 : 0.65, ease }}
                 alt={
                   active < 2
-                    ? "Creators networking in the studio"
-                    : "Mark explaining a digital offer"
+                    ? t("Creators networking in the studio")
+                    : t("Mark explaining a digital offer")
                 }
                 loading="lazy"
               />
@@ -948,12 +956,12 @@ function Workflow() {
                   onClick={() => setActive(i)}
                 >
                   <small>0{i + 1}</small>
-                  <span>{title}</span>
+                  <span>{t(title)}</span>
                   <ArrowUpRight size={22} />
                 </button>
               </h3>
               <Expand id={`workflow-${i}`} open={active === i}>
-                <p>{description}</p>
+                <p>{t(description)}</p>
                 <span className="workflow-progress" aria-hidden="true" />
               </Expand>
             </div>
@@ -964,6 +972,7 @@ function Workflow() {
   );
 }
 function Production() {
+  const { t } = useLanguage();
   const ref = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduced = useReducedMotion();
@@ -1015,7 +1024,7 @@ function Production() {
       >
         <img
           src={img("mark-production-poster")}
-          alt="Mark working with a camera crew on a content production"
+          alt={t("Mark working with a camera crew on a content production")}
           loading="lazy"
         />
         {nearby && !failed && (
@@ -1041,13 +1050,13 @@ function Production() {
       <div className="production-overlay" />
       <div className="production-content">
         <div className="production-top">
-          <Label number="08">Production & content</Label>
+          <Label number="08">{t("Production & content")}</Label>
           {nearby && !failed && (
             <button
               type="button"
               className="production-playback"
               aria-controls="mark-production-video"
-              aria-label={playing ? "Pause film" : "Play film"}
+              aria-label={playing ? t("Pause film") : t("Play film")}
               onClick={togglePlayback}
             >
               {playing ? (
@@ -1055,25 +1064,25 @@ function Production() {
               ) : (
                 <Play size={16} aria-hidden="true" />
               )}
-              <span>{playing ? "Pause film" : "Play film"}</span>
+              <span>{playing ? t("Pause film") : t("Play film")}</span>
             </button>
           )}
         </div>
         <Reveal>
           <AnimatedHeading>
-            Create content
+            {t("Create content")}
             <br />
-            <em>with a strategy.</em>
+            <em>{t("with a strategy.")}</em>
           </AnimatedHeading>
         </Reveal>
         <div className="production-bottom">
           <p>
-            Plan. Create.
+            {t("Plan. Create.")}
             <br />
-            Publish. Grow.
+            {t("Publish. Grow.")}
           </p>
           <Action href="#bewerbung" light>
-            Your next step
+            {t("Your next step")}
           </Action>
         </div>
       </div>
@@ -1081,46 +1090,46 @@ function Production() {
   );
 }
 function Cyprus() {
+  const { t } = useLanguage();
   return (
     <section id="zypern" className="section cyprus">
-      <Label number="09">Cyprus Experience</Label>
+      <Label number="09">{t("Cyprus Experience")}</Label>
       <div className="cyprus-grid">
         <Reveal className="cyprus-photo" variant="image">
           <img
             src={img("workshop")}
-            alt="A glimpse of our work together in the production studio"
+            alt={t("A glimpse of our work together in the production studio")}
             loading="lazy"
           />
-          <span>A GLIMPSE OF OUR WORK TOGETHER</span>
+          <span>{t("A GLIMPSE OF OUR WORK TOGETHER")}</span>
         </Reveal>
         <Reveal className="cyprus-copy">
-          <span className="eyebrow">NEW PERSPECTIVES.</span>
+          <span className="eyebrow">{t("NEW PERSPECTIVES.")}</span>
           <AnimatedHeading>
-            Meet.
+            {t("Meet.")}
             <br />
-            Create.
+            {t("Create.")}
             <br />
-            Connect.
+            {t("Connect.")}
             <br />
-            <span>In Cyprus.</span>
+            <span>{t("In Cyprus.")}</span>
           </AnimatedHeading>
           <div className="cyprus-list">
             <span>
-              Training Sessions <ArrowUpRight size={18} />
+              {t("Training Sessions")} <ArrowUpRight size={18} />
             </span>
             <span>
-              Production days <ArrowUpRight size={18} />
+              {t("Production days")} <ArrowUpRight size={18} />
             </span>
             <span>
-              Creator Networking <ArrowUpRight size={18} />
+              {t("Creator Networking")} <ArrowUpRight size={18} />
             </span>
           </div>
           <p className="fine-print">
-            Opportunities depend on selection, availability, and the agreed
-            terms.
+            {t("Opportunities depend on selection, availability, and the agreed terms.")}
           </p>
           <a className="text-link" href="#bewerbung">
-            Register your interest <ArrowRight size={18} />
+            {t("Register your interest")} <ArrowRight size={18} />
           </a>
         </Reveal>
       </div>
@@ -1150,19 +1159,20 @@ const faqs = [
   ],
 ];
 function FAQ() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState<number | null>(0);
   return (
     <section id="faq" className="section faq light-section">
-      <Label number="10">Good to know</Label>
+      <Label number="10">{t("Good to know")}</Label>
       <div className="faq-grid">
         <div>
           <AnimatedHeading>
-            Your questions.
+            {t("Your questions.")}
             <br />
-            <span>Clear answers.</span>
+            <span>{t("Clear answers.")}</span>
           </AnimatedHeading>
           <a className="text-link" href="#bewerbung">
-            Let’s talk <ArrowUpRight size={18} />
+            {t("Let’s talk")} <ArrowUpRight size={18} />
           </a>
         </div>
         <div>
@@ -1175,7 +1185,7 @@ function FAQ() {
                   aria-controls={`faq-answer-${i}`}
                   id={`faq-question-${i}`}
                 >
-                  <span>{question}</span>
+                  <span>{t(question)}</span>
                   <Plus className={open === i ? "rotated" : ""} size={22} />
                 </button>
               </h3>
@@ -1184,7 +1194,7 @@ function FAQ() {
                 labelledBy={`faq-question-${i}`}
                 open={open === i}
               >
-                <p>{answer}</p>
+                <p>{t(answer)}</p>
               </Expand>
             </article>
           ))}
@@ -1194,6 +1204,7 @@ function FAQ() {
   );
 }
 function Application() {
+  const { t } = useLanguage();
   const reduced = useReducedMotion();
   const [state, setState] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
@@ -1241,21 +1252,21 @@ function Application() {
   };
   return (
     <section id="bewerbung" className="section application">
-      <Label number="11">Your next step</Label>
+      <Label number="11">{t("Your next step")}</Label>
       <Reveal className="application-title">
         <AnimatedHeading>
-          Your next step
+          {t("Your next step")}
           <br />
-          is <em>simple.</em>
+          {t("is")} <em>{t("simple.")}</em>
         </AnimatedHeading>
         <p>
-          Personality meets opportunity.
+          {t("Personality meets opportunity.")}
           <br />
-          Let’s discover what we can build together.
+          {t("Let’s discover what we can build together.")}
         </p>
       </Reveal>
       <ol className="application-process">
-        {["Apply", "Conversation", "Agreement", "Start"].map((step, i) => (
+        {[t("Apply"), t("Conversation"), t("Agreement"), "Start"].map((step, i) => (
           <motion.li
             key={step}
             initial={reduced ? false : { opacity: 0, y: 35 }}
@@ -1277,24 +1288,24 @@ function Application() {
         <div className="application-photo">
           <img
             src={img("mark-portrait")}
-            alt="Mark Aurel, ready for a personal conversation"
+            alt={t("Mark Aurel, ready for a personal conversation")}
             loading="lazy"
           />
           <div>
             <p>
-              Your talent.
+              {t("Your talent.")}
               <br />
-              Your story.
+              {t("Your story.")}
               <br />
-              <span>Our shared journey.</span>
+              <span>{t("Our shared journey.")}</span>
             </p>
             <small>MARK AUREL · CREATOR AGENCY</small>
           </div>
         </div>
         <form onSubmit={handleSubmit} className="application-form">
           <div className="form-heading">
-            <h3>Let’s get to know you.</h3>
-            <span>01 — APPLICATION</span>
+            <h3>{t("Let’s get to know you.")}</h3>
+            <span>{t("01 — APPLICATION")}</span>
           </div>
           <div className="form-fields">
             <label>
@@ -1302,18 +1313,18 @@ function Application() {
               <input
                 name="name"
                 autoComplete="name"
-                placeholder="Your name"
+                placeholder={t("Your name")}
                 required
                 maxLength={120}
               />
             </label>
             <label>
-              Email
+              {t("Email")}
               <input
                 name="email"
                 type="email"
                 autoComplete="email"
-                placeholder="you@example.com"
+                placeholder={t("you@example.com")}
                 required
                 maxLength={200}
               />
@@ -1322,56 +1333,54 @@ function Application() {
               Instagram
               <input
                 name="instagram"
-                placeholder="@your.profile"
+                placeholder={t("@your.profile")}
                 required
                 maxLength={150}
               />
             </label>
             <label>
-              Country
+              {t("Country")}
               <input
                 name="country"
                 autoComplete="country-name"
-                placeholder="Your country"
+                placeholder={t("Your country")}
                 required
                 maxLength={100}
               />
             </label>
             <label className="full-field">
-              Creator level
+              {t("Creator level")}
               <select name="level" required defaultValue="">
                 <option value="" disabled>
-                  Where are you right now?
+                  {t("Where are you right now?")}
                 </option>
-                <option>I’m just getting started</option>
-                <option>I already create content</option>
-                <option>I have a community</option>
-                <option>I earn money from my content</option>
+                <option value="I’m just getting started">{t("I’m just getting started")}</option>
+                <option value="I already create content">{t("I already create content")}</option>
+                <option value="I have a community">{t("I have a community")}</option>
+                <option value="I earn money from my content">{t("I earn money from my content")}</option>
               </select>
             </label>
             <label className="full-field">
-              Your goal
+              {t("Your goal")}
               <textarea
                 name="goal"
                 rows={3}
-                placeholder="What would you like to build?"
+                placeholder={t("What would you like to build?")}
                 required
                 maxLength={2500}
               />
             </label>
           </div>
           <label className="honeypot" aria-hidden="true">
-            Company
+            {t("Company")}
             <input name="mk_hp" tabIndex={-1} autoComplete="new-password" />
           </label>
           <label className="consent">
-            <input type="checkbox" name="consent" required />I would like to be
-            contacted to discuss my application.
+            <input type="checkbox" name="consent" required />{t("I would like to be contacted to discuss my application.")}
           </label>
           {!endpoint && (
             <p className="form-note">
-              Applications will open soon. No information is being submitted at
-              this time.
+              {t("Applications will open soon. No information is being submitted at this time.")}
             </p>
           )}
           <button
@@ -1380,7 +1389,7 @@ function Application() {
             type="submit"
           >
             <span>
-              {state === "sending" ? "Sending …" : "Submit application"}
+              {state === "sending" ? t("Sending …") : t("Submit application")}
             </span>
             <ArrowUpRight size={24} />
           </button>
@@ -1389,7 +1398,7 @@ function Application() {
             role="status"
             aria-live="polite"
           >
-            {message}
+            {t(message)}
           </p>
         </form>
       </div>
@@ -1403,6 +1412,7 @@ function LegalDialog({
   kind: string | null;
   close: () => void;
 }) {
+  const { t } = useLanguage();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (kind) ref.current?.showModal();
@@ -1422,19 +1432,19 @@ function LegalDialog({
         <button
           className="dialog-close"
           onClick={() => ref.current?.close()}
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           <X />
         </button>
         <small>MARK AUREL CREATOR AGENCY</small>
-        <h2 id="legal-title">{kind}</h2>
+        <h2 id="legal-title">{t(kind ?? "")}</h2>
         <p>
           {kind === "Legal notice"
-            ? "Verified business and contact details will be added before launch."
-            : "The full privacy policy will be added before applications open."}
+            ? t("Verified business and contact details will be added before launch.")
+            : t("The full privacy policy will be added before applications open.")}
         </p>
         <button className="dialog-back" onClick={() => ref.current?.close()}>
-          Back to the website <ArrowRight size={18} />
+          {t("Back to the website")} <ArrowRight size={18} />
         </button>
       </div>
     </dialog>
@@ -1447,6 +1457,7 @@ function Footer({
   paused: boolean;
   setPaused: (value: boolean) => void;
 }) {
+  const { t } = useLanguage();
   const [legal, setLegal] = useState<string | null>(null);
   const reduced = useReducedMotion();
   return (
@@ -1460,25 +1471,25 @@ function Footer({
             <small>CREATOR AGENCY · POWERED BY SNAPSELL</small>
           </a>
           <p>
-            Personal experience. Professional production.
+            {t("Personal experience. Professional production.")}
             <br />
-            Modern technology. For your creator business.
+            {t("Modern technology. For your creator business.")}
           </p>
         </div>
-        <nav aria-label="Footer Navigation">
+        <nav aria-label={t("Footer Navigation")}>
           {navigation.map(([title, href]) => (
             <a key={href} href={href}>
-              {title}
+              {t(title)}
               <ArrowUpRight size={15} />
             </a>
           ))}
         </nav>
         <div className="footer-contact">
-          <span>YOUR TALENT. YOUR NEXT STEP.</span>
+          <span>{t("YOUR TALENT. YOUR NEXT STEP.")}</span>
           <a href="#bewerbung">
-            Let’s
+            {t("Let’s")}
             <br />
-            talk. <ArrowUpRight />
+            {t("talk.")} <ArrowUpRight />
           </a>
         </div>
       </div>
@@ -1487,27 +1498,27 @@ function Footer({
         <span>© {new Date().getFullYear()} Mark Aurel Creator Agency</span>
         <div>
           <button onClick={() => setLegal("Privacy policy")}>
-            Privacy policy
+            {t("Privacy policy")}
           </button>
-          <button onClick={() => setLegal("Legal notice")}>Legal notice</button>
-          <a href="#bewerbung">Contact</a>
+          <button onClick={() => setLegal("Legal notice")}>{t("Legal notice")}</button>
+          <a href="#bewerbung">{t("Contact")}</a>
         </div>
         {!reduced && (
           <button
             className="motion-control"
             onClick={() => setPaused(!paused)}
             aria-label={
-              paused ? "Resume scrolling text" : "Pause scrolling text"
+              paused ? t("Resume scrolling text") : t("Pause scrolling text")
             }
           >
             {paused ? <Play size={13} /> : <Pause size={13} />}
             <span>
-              {paused ? "Resume scrolling text" : "Pause scrolling text"}
+              {paused ? t("Resume scrolling text") : t("Pause scrolling text")}
             </span>
           </button>
         )}
         <a href="#hero" className="back-top">
-          Back to top <ArrowUpRight size={16} />
+          {t("Back to top")} <ArrowUpRight size={16} />
         </a>
       </div>
       <LegalDialog kind={legal} close={() => setLegal(null)} />
@@ -1515,6 +1526,7 @@ function Footer({
   );
 }
 function Intro({ onComplete }: { onComplete: () => void }) {
+  const { t } = useLanguage();
   const [count, setCount] = useState(0);
   useEffect(() => {
     const start = performance.now();
@@ -1539,17 +1551,18 @@ function Intro({ onComplete }: { onComplete: () => void }) {
         <small>CREATOR AGENCY × SNAPSELL</small>
       </div>
       <button onClick={onComplete}>
-        Skip intro <ArrowUpRight size={16} />
+        {t("Skip intro")} <ArrowUpRight size={16} />
       </button>
       <span className="intro-count" aria-hidden="true">
         {count.toString().padStart(2, "0")}
         <small>%</small>
       </span>
-      <p>YOUR TALENT. A STRONGER CREATOR BUSINESS.</p>
+      <p>{t("YOUR TALENT. A STRONGER CREATOR BUSINESS.")}</p>
     </motion.div>
   );
 }
 export default function StudioPage() {
+  const { t } = useLanguage();
   const reduced = useReducedMotion();
   const [paused, setPaused] = useState(false);
   const [intro, setIntro] = useState(() => {
@@ -1582,7 +1595,7 @@ export default function StudioPage() {
       <div className="studio-site" inert={intro}>
         <ScrollProgress />
         <a className="skip-link" href="#main-content">
-          Skip to content
+          {t("Skip to content")}
         </a>
         <Header />
         <main id="main-content">
