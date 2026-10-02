@@ -1,0 +1,9 @@
+{
+  "mark-production-loop.mp4": {
+    "archive": "drive-download-20261001T123037Z-1-001.zip",
+    "source": "SECTION 7 — COLLABORATIONS/Clip.mp4",
+    "usage": "Production & Content background film",
+    "processing": "Full supplied clip, resized to 1600 pixels wide, H.264 web encoding, audio removed, fast-start enabled",
+    "poster": "mark-production-poster.webp"
+  }
+}

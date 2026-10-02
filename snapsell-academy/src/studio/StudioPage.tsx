@@ -929,23 +929,100 @@ function Workflow() {
 }
 function Production() {
   const ref = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const reduced = useReducedMotion();
+  const nearby = useInView(ref, { once: true, margin: "400px" });
+  const visible = useInView(ref, { amount: 0.15 });
+  const [playPreference, setPlayPreference] = useState<boolean | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const enabled = playPreference ?? !reduced;
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
   const scale = useTransform(scrollYProgress, [0, 1], [1.12, 1]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const syncPlayback = () => {
+      if (enabled && visible && !document.hidden) {
+        void video.play().catch(() => {
+          // Keep the poster and manual play control when autoplay is blocked.
+        });
+      } else {
+        video.pause();
+      }
+    };
+    syncPlayback();
+    document.addEventListener("visibilitychange", syncPlayback);
+    return () => {
+      document.removeEventListener("visibilitychange", syncPlayback);
+      video.pause();
+    };
+  }, [enabled, visible, nearby, failed]);
+
+  const togglePlayback = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    setPlayPreference(!playing);
+    if (playing) video.pause();
+    else void video.play().catch(() => {});
+  };
+
   return (
     <section ref={ref} className="production-section" id="produktion">
-      <motion.img
-        src={img("production")}
-        alt="A film production with Mark and a camera crew"
-        loading="lazy"
+      <motion.div
+        className="production-media"
         style={{ scale: reduced ? 1 : scale }}
-      />
+      >
+        <img
+          src={img("mark-production-poster")}
+          alt="Mark working with a camera crew on a content production"
+          loading="lazy"
+        />
+        {nearby && !failed && (
+          <video
+            ref={videoRef}
+            id="mark-production-video"
+            src="/media/mark-production-loop.mp4"
+            poster={img("mark-production-poster")}
+            muted
+            loop
+            playsInline
+            preload="none"
+            aria-hidden="true"
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            onError={() => {
+              setFailed(true);
+              setPlaying(false);
+            }}
+          />
+        )}
+      </motion.div>
       <div className="production-overlay" />
       <div className="production-content">
-        <Label number="08">Production & content</Label>
+        <div className="production-top">
+          <Label number="08">Production & content</Label>
+          {nearby && !failed && (
+            <button
+              type="button"
+              className="production-playback"
+              aria-controls="mark-production-video"
+              aria-label={playing ? "Pause film" : "Play film"}
+              onClick={togglePlayback}
+            >
+              {playing ? (
+                <Pause size={16} aria-hidden="true" />
+              ) : (
+                <Play size={16} aria-hidden="true" />
+              )}
+              <span>{playing ? "Pause film" : "Play film"}</span>
+            </button>
+          )}
+        </div>
         <Reveal>
           <AnimatedHeading>
             Create content
