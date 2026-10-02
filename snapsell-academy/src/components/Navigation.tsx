@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
-const NAV_LINKS = [
-  { label: "Über Mark", href: "#ueber-mark" },
+const LEFT_LINKS = [
+  { label: "Über Mark", href: "#lerne-mark-kennen" },
+  { label: "So funktioniert's", href: "#snapsell" },
+];
+
+const RIGHT_LINKS = [
   { label: "Unterstützung", href: "#leistungen" },
-  { label: "So funktioniert es", href: "#snapsell" },
   { label: "FAQ", href: "#faq" },
 ];
 
@@ -17,7 +20,7 @@ export default function Navigation() {
   const hamburgerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -25,10 +28,8 @@ export default function Navigation() {
   // Focus trap
   useEffect(() => {
     if (!menuOpen) return;
-    // Focus first link
     const first = menuRef.current?.querySelector<HTMLElement>("a, button");
     first?.focus();
-
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setMenuOpen(false);
@@ -65,84 +66,53 @@ export default function Navigation() {
     }
   }, []);
 
-  const headerBg = scrolled
-    ? "rgba(5,5,5,0.94)"
-    : "transparent";
-  const headerBlur = scrolled ? "blur(14px)" : "none";
-
   return (
     <>
+      {/* Floating pill nav */}
       <header
         style={{
           position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
+          top: "clamp(12px, 2vh, 20px)",
+          left: "50%",
+          transform: "translateX(-50%)",
           zIndex: 100,
-          background: headerBg,
-          backdropFilter: headerBlur,
-          WebkitBackdropFilter: headerBlur,
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
-          transition: "background 0.35s ease, backdrop-filter 0.35s ease",
+          width: "min(92vw, 860px)",
         }}
       >
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease }}
           style={{
-            maxWidth: "1400px",
-            margin: "0 auto",
-            padding: "0 clamp(1.25rem,4vw,3rem)",
-            height: "72px",
             display: "flex",
             alignItems: "center",
-            gap: "2rem",
+            justifyContent: "space-between",
+            background: scrolled
+              ? "rgba(18,18,18,0.88)"
+              : "rgba(22,22,22,0.72)",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            border: "1px solid rgba(255,255,255,0.09)",
+            borderRadius: "100px",
+            padding: "0.45rem 0.55rem 0.45rem 1.4rem",
+            boxShadow: scrolled
+              ? "0 8px 32px rgba(0,0,0,0.45)"
+              : "0 4px 16px rgba(0,0,0,0.28)",
+            transition: "background 0.3s ease, box-shadow 0.3s ease",
+            gap: "1rem",
           }}
         >
-          {/* Logo */}
-          <a
-            href="/"
-            style={{
-              textDecoration: "none",
-              flexShrink: 0,
-              display: "flex",
-              flexDirection: "column",
-              lineHeight: 1.1,
-            }}
-            aria-label="Mark Aurel Creator Agency"
-          >
-            <span style={{
-              fontFamily: "Space Grotesk, sans-serif",
-              fontWeight: 700,
-              fontSize: "0.9rem",
-              letterSpacing: "0.14em",
-              color: "#F5F5F2",
-              textTransform: "uppercase",
-            }}>
-              MARK AUREL
-            </span>
-            <span style={{
-              fontFamily: "Manrope, sans-serif",
-              fontWeight: 400,
-              fontSize: "0.65rem",
-              letterSpacing: "0.12em",
-              color: "#A5A5A5",
-              textTransform: "uppercase",
-            }}>
-              Creator Agency · <span style={{ color: "#00D084" }}>SnapSell</span>
-            </span>
-          </a>
-
-          {/* Desktop center nav */}
+          {/* LEFT links — desktop */}
           <nav
-            aria-label="Hauptnavigation"
+            aria-label="Navigation links left"
+            className="pill-desktop"
             style={{
-              flex: 1,
               display: "flex",
-              justifyContent: "center",
-              gap: "clamp(1rem,2.5vw,2.5rem)",
+              gap: "clamp(0.75rem, 2vw, 1.75rem)",
+              flex: 1,
             }}
-            className="desktop-nav"
           >
-            {NAV_LINKS.map((link) => (
+            {LEFT_LINKS.map((link) => (
               <button
                 key={link.href}
                 onClick={() => handleLinkClick(link.href)}
@@ -152,54 +122,95 @@ export default function Navigation() {
                   cursor: "pointer",
                   fontFamily: "Manrope, sans-serif",
                   fontWeight: 500,
-                  fontSize: "0.82rem",
-                  letterSpacing: "0.03em",
-                  color: "#C0C0C0",
-                  padding: "0.25rem 0",
+                  fontSize: "0.8rem",
+                  letterSpacing: "0.02em",
+                  color: "#B0B0B0",
+                  padding: "0.3rem 0",
                   transition: "color 0.18s ease",
                   whiteSpace: "nowrap",
                 }}
                 onMouseEnter={e => (e.currentTarget.style.color = "#F5F5F2")}
-                onMouseLeave={e => (e.currentTarget.style.color = "#C0C0C0")}
+                onMouseLeave={e => (e.currentTarget.style.color = "#B0B0B0")}
               >
                 {link.label}
               </button>
             ))}
           </nav>
 
-          {/* Desktop CTA */}
+          {/* CENTER brand */}
           <a
-            href="#bewerbung"
-            onClick={e => { e.preventDefault(); handleLinkClick("#bewerbung"); }}
-            className="desktop-nav"
+            href="/"
+            aria-label="Mark Aurel Creator Agency"
             style={{
-              flexShrink: 0,
-              fontFamily: "Space Grotesk, sans-serif",
-              fontWeight: 600,
-              fontSize: "0.78rem",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "#050505",
-              background: "#00D084",
               textDecoration: "none",
-              padding: "0.55rem 1.25rem",
-              borderRadius: "2px",
-              transition: "background 0.18s ease, transform 0.18s ease",
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLAnchorElement).style.background = "#00b873";
-              (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLAnchorElement).style.background = "#00D084";
-              (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              lineHeight: 1.1,
+              flexShrink: 0,
             }}
           >
-            Bewerben
+            <span style={{
+              fontFamily: "Space Grotesk, sans-serif",
+              fontWeight: 700,
+              fontSize: "0.82rem",
+              letterSpacing: "0.16em",
+              color: "#F5F5F2",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+            }}>
+              MARK AUREL
+            </span>
+            <span style={{
+              fontFamily: "Manrope, sans-serif",
+              fontWeight: 400,
+              fontSize: "0.55rem",
+              letterSpacing: "0.12em",
+              color: "#666",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+            }}>
+              Creator Agency
+            </span>
           </a>
 
-          {/* Mobile right: CTA + hamburger */}
-          <div className="mobile-nav" style={{ display: "none", alignItems: "center", gap: "0.75rem", marginLeft: "auto" }}>
+          {/* RIGHT links + CTA — desktop */}
+          <nav
+            aria-label="Navigation links right"
+            className="pill-desktop"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "clamp(0.75rem, 2vw, 1.75rem)",
+              flex: 1,
+              justifyContent: "flex-end",
+            }}
+          >
+            {RIGHT_LINKS.map((link) => (
+              <button
+                key={link.href}
+                onClick={() => handleLinkClick(link.href)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "Manrope, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "0.8rem",
+                  letterSpacing: "0.02em",
+                  color: "#B0B0B0",
+                  padding: "0.3rem 0",
+                  transition: "color 0.18s ease",
+                  whiteSpace: "nowrap",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = "#F5F5F2")}
+                onMouseLeave={e => (e.currentTarget.style.color = "#B0B0B0")}
+              >
+                {link.label}
+              </button>
+            ))}
+
+            {/* Bewerben pill button */}
             <a
               href="#bewerbung"
               onClick={e => { e.preventDefault(); handleLinkClick("#bewerbung"); }}
@@ -207,12 +218,45 @@ export default function Navigation() {
                 fontFamily: "Space Grotesk, sans-serif",
                 fontWeight: 600,
                 fontSize: "0.72rem",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "#050505",
+                background: "#00D084",
+                textDecoration: "none",
+                padding: "0.5rem 1.1rem",
+                borderRadius: "100px",
+                transition: "background 0.18s ease, transform 0.18s ease",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "#00b873";
+                (e.currentTarget as HTMLAnchorElement).style.transform = "scale(1.03)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "#00D084";
+                (e.currentTarget as HTMLAnchorElement).style.transform = "scale(1)";
+              }}
+            >
+              Bewerben
+            </a>
+          </nav>
+
+          {/* Mobile: hamburger */}
+          <div className="pill-mobile" style={{ display: "none", alignItems: "center", gap: "0.75rem" }}>
+            <a
+              href="#bewerbung"
+              onClick={e => { e.preventDefault(); handleLinkClick("#bewerbung"); }}
+              style={{
+                fontFamily: "Space Grotesk, sans-serif",
+                fontWeight: 600,
+                fontSize: "0.68rem",
                 letterSpacing: "0.08em",
                 color: "#050505",
                 background: "#00D084",
                 textDecoration: "none",
-                padding: "0.45rem 0.9rem",
-                borderRadius: "2px",
+                padding: "0.45rem 0.85rem",
+                borderRadius: "100px",
               }}
             >
               Bewerben
@@ -256,7 +300,7 @@ export default function Navigation() {
               ))}
             </button>
           </div>
-        </div>
+        </motion.div>
       </header>
 
       {/* Mobile menu */}
@@ -267,30 +311,32 @@ export default function Navigation() {
             role="dialog"
             aria-modal="true"
             aria-label="Navigation"
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25, ease }}
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            transition={{ duration: 0.22, ease }}
             style={{
               position: "fixed",
-              top: "72px",
-              left: 0,
-              right: 0,
+              top: "clamp(70px, 10vh, 90px)",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "min(92vw, 860px)",
               zIndex: 99,
-              background: "rgba(5,5,5,0.97)",
-              backdropFilter: "blur(14px)",
-              WebkitBackdropFilter: "blur(14px)",
-              borderBottom: "1px solid rgba(255,255,255,0.07)",
-              padding: "1.5rem clamp(1.25rem,4vw,3rem) 2rem",
+              background: "rgba(14,14,14,0.97)",
+              backdropFilter: "blur(18px)",
+              WebkitBackdropFilter: "blur(18px)",
+              border: "1px solid rgba(255,255,255,0.09)",
+              borderRadius: "20px",
+              padding: "1.5rem 1.5rem 2rem",
               display: "flex",
               flexDirection: "column",
               gap: "0",
             }}
           >
-            {NAV_LINKS.map((link, i) => (
+            {[...LEFT_LINKS, ...RIGHT_LINKS].map((link, i) => (
               <motion.button
                 key={link.href}
-                initial={{ opacity: 0, x: -12 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.2 }}
                 onClick={() => handleLinkClick(link.href)}
@@ -301,9 +347,9 @@ export default function Navigation() {
                   cursor: "pointer",
                   fontFamily: "Space Grotesk, sans-serif",
                   fontWeight: 500,
-                  fontSize: "1.1rem",
+                  fontSize: "1.05rem",
                   color: "#F5F5F2",
-                  padding: "1.1rem 0",
+                  padding: "1rem 0",
                   textAlign: "left",
                   letterSpacing: "0.02em",
                 }}
@@ -316,13 +362,13 @@ export default function Navigation() {
       </AnimatePresence>
 
       <style>{`
-        @media (max-width: 768px) {
-          .desktop-nav { display: none !important; }
-          .mobile-nav { display: flex !important; }
+        @media (max-width: 680px) {
+          .pill-desktop { display: none !important; }
+          .pill-mobile { display: flex !important; }
         }
-        @media (min-width: 769px) {
-          .mobile-nav { display: none !important; }
-          .desktop-nav { display: flex !important; }
+        @media (min-width: 681px) {
+          .pill-mobile { display: none !important; }
+          .pill-desktop { display: flex !important; }
         }
       `}</style>
     </>
