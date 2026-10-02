@@ -1,4 +1,7 @@
 import {
+  Children,
+  cloneElement,
+  isValidElement,
   useEffect,
   useRef,
   useState,
@@ -11,6 +14,7 @@ import {
   useInView,
   useReducedMotion,
   useScroll,
+  useSpring,
   useTransform,
   type MotionValue,
 } from "motion/react";
@@ -41,30 +45,173 @@ function Reveal({
   children,
   className = "",
   delay = 0,
+  variant = "rise",
 }: {
   children: ReactNode;
   className?: string;
   delay?: number;
+  variant?: "rise" | "image" | "card";
 }) {
   const reduced = useReducedMotion();
+  const hidden =
+    variant === "image"
+      ? { opacity: 1, y: 30, clipPath: "inset(100% 0% 0% 0%)" }
+      : variant === "card"
+        ? { opacity: 0, y: 90, rotate: 2, scale: 0.96 }
+        : { opacity: 0, y: 65 };
   return (
     <motion.div
       className={className}
-      initial={reduced ? false : { opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.12 }}
-      transition={{ duration: 0.8, ease, delay }}
+      initial={reduced ? false : hidden}
+      whileInView={{
+        opacity: 1,
+        y: 0,
+        rotate: 0,
+        scale: 1,
+        clipPath: "inset(0% 0% 0% 0%)",
+      }}
+      viewport={{ once: true, amount: 0.16, margin: "0px 0px -35px 0px" }}
+      transition={{
+        duration: reduced ? 0 : 1.05,
+        ease,
+        delay: reduced ? 0 : delay,
+      }}
     >
       {children}
     </motion.div>
   );
 }
-function Label({ children, number }: { children: ReactNode; number: string }) {
+function AnimatedHeading({
+  children,
+  as = "h2",
+  ready = true,
+}: {
+  children: ReactNode;
+  as?: "h1" | "h2";
+  ready?: boolean;
+}) {
+  const reduced = useReducedMotion();
+  let index = 0;
+  const textContent = (nodes: ReactNode): string =>
+    Children.toArray(nodes)
+      .map((node) => {
+        if (typeof node === "string" || typeof node === "number")
+          return String(node);
+        if (isValidElement<{ children?: ReactNode }>(node))
+          return node.type === "br" ? " " : textContent(node.props.children);
+        return "";
+      })
+      .join("")
+      .replace(/\s+/g, " ")
+      .trim();
+  const split = (nodes: ReactNode): ReactNode =>
+    Children.map(nodes, (node) => {
+      if (typeof node === "string")
+        return node.split(/(\s+)/).map((word, i) => {
+          if (!word.trim()) return word;
+          const order = index++;
+          return (
+            <span
+              className="heading-word-mask"
+              aria-hidden="true"
+              key={`${order}-${i}`}
+            >
+              <motion.span
+                variants={{
+                  hidden: { y: "115%", rotate: 5 },
+                  visible: {
+                    y: 0,
+                    rotate: 0,
+                    transition: {
+                      duration: 0.95,
+                      delay: Math.min(order * 0.055, 0.45),
+                      ease,
+                    },
+                  },
+                }}
+              >
+                {word}
+              </motion.span>
+            </span>
+          );
+        });
+      if (isValidElement<{ children?: ReactNode }>(node) && node.type !== "br")
+        return cloneElement(node, {}, split(node.props.children));
+      return node;
+    });
+  const Heading = as === "h1" ? motion.h1 : motion.h2;
   return (
-    <div className="section-label">
+    <Heading
+      aria-label={textContent(children)}
+      initial={reduced ? false : "hidden"}
+      whileInView={ready ? "visible" : "hidden"}
+      viewport={{ once: false, amount: 0.45, margin: "0px 0px -25px 0px" }}
+    >
+      {reduced ? children : split(children)}
+    </Heading>
+  );
+}
+function Label({ children, number }: { children: ReactNode; number: string }) {
+  const reduced = useReducedMotion();
+  return (
+    <motion.div
+      className="section-label"
+      initial={reduced ? false : { opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.8 }}
+      transition={{ duration: reduced ? 0 : 0.7, ease }}
+    >
       <span>({children})</span>
       <span>({number})</span>
-    </div>
+      <motion.i
+        aria-hidden="true"
+        className="section-rule"
+        initial={reduced ? false : { scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true, amount: 1 }}
+        transition={{ duration: reduced ? 0 : 1.1, ease }}
+      />
+    </motion.div>
+  );
+}
+function Expand({
+  open,
+  children,
+  id,
+  labelledBy,
+}: {
+  open: boolean;
+  children: ReactNode;
+  id: string;
+  labelledBy?: string;
+}) {
+  const reduced = useReducedMotion();
+  return (
+    <motion.div
+      id={id}
+      role={labelledBy ? "region" : undefined}
+      aria-labelledby={labelledBy}
+      aria-hidden={!open}
+      inert={!open}
+      initial={false}
+      animate={{ height: open ? "auto" : 0, opacity: open ? 1 : 0 }}
+      transition={{ duration: reduced ? 0 : 0.45, ease }}
+      className="expand-panel"
+    >
+      {children}
+    </motion.div>
+  );
+}
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const reduced = useReducedMotion();
+  const progress = useSpring(scrollYProgress, { stiffness: 180, damping: 30 });
+  return (
+    <motion.div
+      className="scroll-progress"
+      aria-hidden="true"
+      style={{ scaleX: reduced ? scrollYProgress : progress }}
+    />
   );
 }
 function Action({
@@ -96,13 +243,13 @@ function Word({
   total: number;
   progress: MotionValue<number>;
 }) {
-  const color = useTransform(
+  const opacity = useTransform(
     progress,
     [i / total, Math.min(1, (i + 2) / total)],
-    ["#747873", "#f5f5f2"],
+    [0.25, 1],
   );
   return (
-    <motion.span aria-hidden="true" style={{ color }}>
+    <motion.span aria-hidden="true" style={{ opacity, color: "#f5f5f2" }}>
       {value}{" "}
     </motion.span>
   );
@@ -253,9 +400,15 @@ function Hero({
   ready: boolean;
 }) {
   const reduced = useReducedMotion();
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const stageY = useTransform(scrollYProgress, [0, 1], [0, -100]);
   return (
-    <section id="hero-content" className="hero">
-      <div className="hero-stage">
+    <section id="hero-content" className="hero" ref={heroRef}>
+      <motion.div className="hero-stage" style={{ y: reduced ? 0 : stageY }}>
         <div className="hero-meta">
           <span>MARK AUREL CREATOR AGENCY</span>
           <span>
@@ -271,9 +424,13 @@ function Hero({
           width="540"
           height="768"
           fetchPriority="high"
-          initial={reduced ? false : { opacity: 0, y: 32 }}
-          animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
-          transition={{ duration: 1.1, ease }}
+          initial={reduced ? false : { opacity: 0, y: 85, scale: 0.94 }}
+          animate={
+            ready
+              ? { opacity: 1, y: 0, scale: 1 }
+              : { opacity: 0, y: 85, scale: 0.94 }
+          }
+          transition={{ duration: reduced ? 0 : 1.5, ease }}
         />
         <div className="hero-side-note">
           <span>CREATOR.</span>
@@ -284,7 +441,9 @@ function Hero({
           <button
             className="hero-motion"
             onClick={() => setPaused(!paused)}
-            aria-label={paused ? "Resume scrolling text" : "Pause scrolling text"}
+            aria-label={
+              paused ? "Resume scrolling text" : "Pause scrolling text"
+            }
           >
             {paused ? <Play size={12} /> : <Pause size={12} />}
             {paused ? "RESUME TEXT" : "PAUSE TEXT"}
@@ -298,16 +457,17 @@ function Hero({
           <br />
           Moving forward with you.
         </span>
-      </div>
+      </motion.div>
       <div className="hero-bottom">
-        <h1>
+        <AnimatedHeading as="h1" ready={ready}>
           Your talent.
           <br />
           A stronger
           <br className="mobile-br" /> <span>Creator Business.</span>
-        </h1>
+        </AnimatedHeading>
         <p>
-          Build your brand with personal support, professional content guidance, and modern technology.
+          Build your brand with personal support, professional content guidance,
+          and modern technology.
         </p>
         <div className="hero-actions">
           <Action href="#bewerbung">Start your application</Action>
@@ -344,11 +504,11 @@ function Reality() {
       <Label number="02">The creator reality</Label>
       <div className="editorial-intro">
         <Reveal>
-          <h2>
+          <AnimatedHeading>
             Still managing everything
             <br />
             alone?
-          </h2>
+          </AnimatedHeading>
         </Reveal>
         <ScrollText text="The everyday demands of being a creator force you to juggle ten roles at once, draining your energy for what really matters." />
       </div>
@@ -364,7 +524,7 @@ function Reality() {
             </article>
           ))}
         </Reveal>
-        <Reveal className="reality-image">
+        <Reveal className="reality-image" variant="image" delay={0.12}>
           <img
             src={img("timeline")}
             alt="A video editing timeline"
@@ -372,7 +532,7 @@ function Reality() {
           />
           <span>CONTENT. AROUND THE CLOCK.</span>
         </Reveal>
-        <Reveal className="reality-image" delay={0.12}>
+        <Reveal className="reality-image" variant="image" delay={0.28}>
           <img
             src={img("content-editing")}
             alt="Mark working at an editing desk in the studio"
@@ -419,11 +579,11 @@ function MeetMark() {
     <section id="mark" className="section meet-mark">
       <Label number="03">Meet Mark</Label>
       <div className="meet-heading">
-        <h2>
+        <AnimatedHeading>
           Meet Mark
           <br />
           <span>Aurel.</span>
-        </h2>
+        </AnimatedHeading>
         <p>Creator. Mentor. Industry connector.</p>
       </div>
       <div className="role-tabs" role="group" aria-label="Mark’s roles">
@@ -460,7 +620,9 @@ function MeetMark() {
       <Reveal className="meet-bio">
         <span className="eyebrow">EXPERIENCE THAT CONNECTS.</span>
         <p>
-          Mark brings together years of experience in production, creator projects, and industry relationships with a professional system for creator development.
+          Mark brings together years of experience in production, creator
+          projects, and industry relationships with a professional system for
+          creator development.
         </p>
         <a
           className="round-link"
@@ -510,7 +672,13 @@ function PhotoPanel({
     target: ref,
     offset: ["start end", "end start"],
   });
-  const y = useTransform(scrollYProgress, [0, 1], ["-5%", "5%"]);
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 130,
+    damping: 30,
+  });
+  const y = useTransform(smoothProgress, [0, 1], ["-8%", "8%"]);
+  const cardY = useTransform(smoothProgress, [0.1, 0.5, 1], [120, 0, -45]);
+  const cardScale = useTransform(smoothProgress, [0.1, 0.5], [0.9, 1]);
   return (
     <article className="photo-panel" ref={ref}>
       <motion.img
@@ -520,19 +688,26 @@ function PhotoPanel({
         loading="lazy"
         style={{ y: reduced ? 0 : y }}
       />
-      <a className="panel-explore" href="#partnerschaft">
+      <a
+        className="panel-explore"
+        href="#partnerschaft"
+        aria-label={`Explore ${panel.title.toLowerCase()} support`}
+      >
         <span>EXPLORE</span>
         <ArrowUpRight size={20} />
       </a>
       <span className="panel-number">0{index + 1} / 03</span>
-      <Reveal className="panel-card">
+      <motion.div
+        className="panel-card"
+        style={{ y: reduced ? 0 : cardY, scale: reduced ? 1 : cardScale }}
+      >
         <h3>
           <small>0{index + 1}</small>
           {panel.title}
         </h3>
         <img src={img(panel.thumb)} alt="" loading="lazy" />
         <p>{panel.text}</p>
-      </Reveal>
+      </motion.div>
       <span className="panel-footer">
         MARK AUREL CREATOR AGENCY <span>POWERED BY SNAPSELL</span>
       </span>
@@ -546,13 +721,13 @@ function System() {
         <Label number="04">The agency system</Label>
         <Reveal className="system-title">
           <span className="eyebrow">YOUR CREATIVITY. OUR STRUCTURE.</span>
-          <h2>
+          <AnimatedHeading>
             A complete system
             <br />
             behind your
             <br />
             <span>Creator Business.</span>
-          </h2>
+          </AnimatedHeading>
         </Reveal>
       </div>
       {pillars.map((panel, i) => (
@@ -563,28 +738,18 @@ function System() {
 }
 function Partnership() {
   const groups = [
-    [
-      "You receive",
-      ["Support", "Content support", "Technology", "Strategy"],
-    ],
-    [
-      "You bring",
-      ["Personality", "Content", "Participation", "Approvals"],
-    ],
+    ["You receive", ["Support", "Content support", "Technology", "Strategy"]],
+    ["You bring", ["Personality", "Content", "Participation", "Approvals"]],
     [
       "Together, we build",
-      [
-        "Long-term collaboration",
-        "Creator growth",
-        "Professional processes",
-      ],
+      ["Long-term collaboration", "Creator growth", "Professional processes"],
     ],
   ] as const;
   return (
     <section id="partnerschaft" className="section partnership light-section">
       <Label number="05">The partnership</Label>
       <Reveal className="partnership-heading">
-        <h2>
+        <AnimatedHeading>
           Coaching included.
           <br />
           <span>
@@ -592,16 +757,15 @@ function Partnership() {
             <br />
             from day one.
           </span>
-        </h2>
+        </AnimatedHeading>
         <p>
           Personal guidance.
-          <br />
-          A shared path forward.
+          <br />A shared path forward.
         </p>
       </Reveal>
       <div className="partnership-grid">
         {groups.map(([title, items], i) => (
-          <Reveal key={title} delay={i * 0.08}>
+          <Reveal key={title} variant="card" delay={i * 0.15}>
             <small>0{i + 1}</small>
             <h3>{title}</h3>
             <ul>
@@ -655,11 +819,11 @@ function Team() {
     <section className="section team">
       <Label number="06">Stronger together</Label>
       <Reveal className="split-heading">
-        <h2>
+        <AnimatedHeading>
           Mark + Team
           <br />
           <span>+ you.</span>
-        </h2>
+        </AnimatedHeading>
         <p>
           Together → Your creator business.
           <br />
@@ -668,7 +832,12 @@ function Team() {
       </Reveal>
       <div className="team-grid">
         {team.map(([title, description, photo, alt], i) => (
-          <Reveal className="team-card" key={title} delay={i * 0.08}>
+          <Reveal
+            className="team-card"
+            key={title}
+            variant="card"
+            delay={i * 0.18}
+          >
             <div className="team-image">
               <img src={img(photo)} alt={alt} loading="lazy" />
               <span>0{i + 1}</span>
@@ -693,33 +862,41 @@ const workflow = [
 ];
 function Workflow() {
   const [active, setActive] = useState(0);
+  const reduced = useReducedMotion();
   return (
     <section id="snapsell" className="section workflow light-section">
       <Label number="07">AI + SnapSell</Label>
       <div className="workflow-grid">
         <div>
-          <h2>
+          <AnimatedHeading>
             Content.
             <br />
             Community.
             <br />
             <span>Commerce.</span>
-          </h2>
+          </AnimatedHeading>
           <p>
             Personal experience.
             <br />
             Modern technology.
           </p>
           <div className="workflow-image">
-            <img
-              src={img(active < 2 ? "network" : "commerce-detail")}
-              alt={
-                active < 2
-                  ? "Creators networking in the studio"
-                  : "Mark explaining a digital offer"
-              }
-              loading="lazy"
-            />
+            <AnimatePresence initial={false}>
+              <motion.img
+                key={active}
+                src={img(active < 2 ? "network" : "commerce-detail")}
+                initial={reduced ? false : { opacity: 0, scale: 1.12 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reduced ? 0 : 0.65, ease }}
+                alt={
+                  active < 2
+                    ? "Creators networking in the studio"
+                    : "Mark explaining a digital offer"
+                }
+                loading="lazy"
+              />
+            </AnimatePresence>
           </div>
         </div>
         <div className="workflow-steps">
@@ -739,10 +916,10 @@ function Workflow() {
                   <ArrowUpRight size={22} />
                 </button>
               </h3>
-              <div id={`workflow-${i}`} hidden={active !== i}>
+              <Expand id={`workflow-${i}`} open={active === i}>
                 <p>{description}</p>
                 <span className="workflow-progress" aria-hidden="true" />
-              </div>
+              </Expand>
             </div>
           ))}
         </div>
@@ -770,11 +947,11 @@ function Production() {
       <div className="production-content">
         <Label number="08">Production & content</Label>
         <Reveal>
-          <h2>
+          <AnimatedHeading>
             Create content
             <br />
             <em>with a strategy.</em>
-          </h2>
+          </AnimatedHeading>
         </Reveal>
         <div className="production-bottom">
           <p>
@@ -795,7 +972,7 @@ function Cyprus() {
     <section id="zypern" className="section cyprus">
       <Label number="09">Cyprus Experience</Label>
       <div className="cyprus-grid">
-        <Reveal className="cyprus-photo">
+        <Reveal className="cyprus-photo" variant="image">
           <img
             src={img("workshop")}
             alt="A glimpse of our work together in the production studio"
@@ -805,7 +982,7 @@ function Cyprus() {
         </Reveal>
         <Reveal className="cyprus-copy">
           <span className="eyebrow">NEW PERSPECTIVES.</span>
-          <h2>
+          <AnimatedHeading>
             Meet.
             <br />
             Create.
@@ -813,7 +990,7 @@ function Cyprus() {
             Connect.
             <br />
             <span>In Cyprus.</span>
-          </h2>
+          </AnimatedHeading>
           <div className="cyprus-list">
             <span>
               Training Sessions <ArrowUpRight size={18} />
@@ -826,7 +1003,8 @@ function Cyprus() {
             </span>
           </div>
           <p className="fine-print">
-            Opportunities depend on selection, availability, and the agreed terms.
+            Opportunities depend on selection, availability, and the agreed
+            terms.
           </p>
           <a className="text-link" href="#bewerbung">
             Register your interest <ArrowRight size={18} />
@@ -865,11 +1043,11 @@ function FAQ() {
       <Label number="10">Good to know</Label>
       <div className="faq-grid">
         <div>
-          <h2>
+          <AnimatedHeading>
             Your questions.
             <br />
             <span>Clear answers.</span>
-          </h2>
+          </AnimatedHeading>
           <a className="text-link" href="#bewerbung">
             Let’s talk <ArrowUpRight size={18} />
           </a>
@@ -888,14 +1066,13 @@ function FAQ() {
                   <Plus className={open === i ? "rotated" : ""} size={22} />
                 </button>
               </h3>
-              <div
+              <Expand
                 id={`faq-answer-${i}`}
-                role="region"
-                aria-labelledby={`faq-question-${i}`}
-                hidden={open !== i}
+                labelledBy={`faq-question-${i}`}
+                open={open === i}
               >
                 <p>{answer}</p>
-              </div>
+              </Expand>
             </article>
           ))}
         </div>
@@ -904,6 +1081,7 @@ function FAQ() {
   );
 }
 function Application() {
+  const reduced = useReducedMotion();
   const [state, setState] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
   );
@@ -952,11 +1130,11 @@ function Application() {
     <section id="bewerbung" className="section application">
       <Label number="11">Your next step</Label>
       <Reveal className="application-title">
-        <h2>
+        <AnimatedHeading>
           Your next step
           <br />
           is <em>simple.</em>
-        </h2>
+        </AnimatedHeading>
         <p>
           Personality meets opportunity.
           <br />
@@ -965,11 +1143,21 @@ function Application() {
       </Reveal>
       <ol className="application-process">
         {["Apply", "Conversation", "Agreement", "Start"].map((step, i) => (
-          <li key={step}>
+          <motion.li
+            key={step}
+            initial={reduced ? false : { opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{
+              duration: reduced ? 0 : 0.7,
+              delay: reduced ? 0 : i * 0.12,
+              ease,
+            }}
+          >
             <small>0{i + 1}</small>
             {step}
             <ArrowUpRight size={20} />
-          </li>
+          </motion.li>
         ))}
       </ol>
       <div className="application-grid">
@@ -1064,12 +1252,13 @@ function Application() {
             <input name="mk_hp" tabIndex={-1} autoComplete="new-password" />
           </label>
           <label className="consent">
-            <input type="checkbox" name="consent" required />
-            I would like to be contacted to discuss my application.
+            <input type="checkbox" name="consent" required />I would like to be
+            contacted to discuss my application.
           </label>
           {!endpoint && (
             <p className="form-note">
-              Applications will open soon. No information is being submitted at this time.
+              Applications will open soon. No information is being submitted at
+              this time.
             </p>
           )}
           <button
@@ -1184,7 +1373,9 @@ function Footer({
       <div className="footer-bottom">
         <span>© {new Date().getFullYear()} Mark Aurel Creator Agency</span>
         <div>
-          <button onClick={() => setLegal("Privacy policy")}>Privacy policy</button>
+          <button onClick={() => setLegal("Privacy policy")}>
+            Privacy policy
+          </button>
           <button onClick={() => setLegal("Legal notice")}>Legal notice</button>
           <a href="#bewerbung">Contact</a>
         </div>
@@ -1192,10 +1383,14 @@ function Footer({
           <button
             className="motion-control"
             onClick={() => setPaused(!paused)}
-            aria-label={paused ? "Resume scrolling text" : "Pause scrolling text"}
+            aria-label={
+              paused ? "Resume scrolling text" : "Pause scrolling text"
+            }
           >
             {paused ? <Play size={13} /> : <Pause size={13} />}
-            <span>{paused ? "Resume scrolling text" : "Pause scrolling text"}</span>
+            <span>
+              {paused ? "Resume scrolling text" : "Pause scrolling text"}
+            </span>
           </button>
         )}
         <a href="#hero" className="back-top">
@@ -1272,6 +1467,7 @@ export default function StudioPage() {
         {intro && <Intro onComplete={finishIntro} />}
       </AnimatePresence>
       <div className="studio-site" inert={intro}>
+        <ScrollProgress />
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>

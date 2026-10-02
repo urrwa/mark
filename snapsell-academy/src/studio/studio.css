@@ -2518,8 +2518,13 @@ html:has(.intro) {
   overflow: hidden;
 }
 @media (min-width: 851px) {
-  .hero-stage { height: calc(100svh - 210px); min-height: 420px; }
-  .hero-bottom { min-height: 210px; }
+  .hero-stage {
+    height: calc(100svh - 210px);
+    min-height: 420px;
+  }
+  .hero-bottom {
+    min-height: 210px;
+  }
 }
 @media (min-width: 851px) and (min-height: 650px) {
   .hero {
@@ -2606,16 +2611,190 @@ html:has(.intro) {
 }
 .workflow-grid > div,
 .faq-grid > div,
-.cyprus-grid > div { min-width: 0; }
-.workflow-step button span { min-width: 0; overflow-wrap: anywhere; }
+.cyprus-grid > div {
+  min-width: 0;
+}
+.workflow-step button span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 @media (max-width: 360px) {
-  .workflow-grid h2 { font-size: 46px; }
-  .workflow-step button { font-size: 25px; gap: 16px; }
-  .production-content h2 { font-size: 44px; }
-  .cyprus-copy h2 { font-size: 47px; }
-  .hero-actions { gap: 10px; }
-  .hero-actions .action > span { padding: 13px 10px; white-space: nowrap; }
-  .hero-actions .text-link { font-size: 9px; }
+  .workflow-grid h2 {
+    font-size: 46px;
+  }
+  .workflow-step button {
+    font-size: 25px;
+    gap: 16px;
+  }
+  .production-content h2 {
+    font-size: 44px;
+  }
+  .cyprus-copy h2 {
+    font-size: 47px;
+  }
+  .hero-actions {
+    gap: 10px;
+  }
+  .hero-actions .action > span {
+    padding: 13px 10px;
+    white-space: nowrap;
+  }
+  .hero-actions .text-link {
+    font-size: 9px;
+  }
+}
+/* Motion follows the page's reading order and respects system preferences. */
+.heading-word-mask {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.heading-word-mask > span {
+  display: inline-block;
+  transform-origin: left bottom;
+}
+.studio-site h2 > .heading-word-mask {
+  color: inherit;
+}
+.hero-bottom h1 > .heading-word-mask {
+  color: var(--ink);
+}
+.hero-bottom h1 .heading-word-mask > span {
+  color: inherit;
+}
+.hero-bottom h1 > span:not(.heading-word-mask) .heading-word-mask {
+  color: inherit;
+}
+.section-label {
+  position: relative;
+  border-bottom-color: transparent;
+}
+.section-rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+  transform-origin: left;
+}
+.scroll-progress {
+  position: fixed;
+  z-index: 150;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--green);
+  transform-origin: left;
+  pointer-events: none;
+}
+.marquee-track {
+  animation-duration: 27s;
+}
+.footer-marquee .marquee-track {
+  animation-duration: 34s;
+  animation-direction: reverse;
+}
+.panel-background {
+  height: 130%;
+  top: -15%;
+}
+.panel-card {
+  will-change: transform;
+}
+.workflow-image {
+  position: relative;
+}
+.workflow-image img {
+  position: absolute;
+  inset: 0;
+}
+.expand-panel {
+  overflow: hidden;
+}
+.workflow-step > .expand-panel {
+  padding: 0;
+}
+.workflow-step .expand-panel p {
+  padding: 0 0 0 38px;
+  margin: 0 0 22px;
+}
+.workflow-step .expand-panel .workflow-progress {
+  margin: 0 0 32px 38px;
+}
+.meet-panel > img {
+  animation: mark-photo-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.meet-panel-caption {
+  animation: mark-caption-reveal 0.85s 0.15s both;
+}
+.action-icon svg {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.action:hover .action-icon svg {
+  transform: translate(3px, -3px);
+}
+.header-apply {
+  transition:
+    background 0.25s,
+    transform 0.3s;
+}
+.header-apply:hover {
+  background: #5ee5ad;
+  transform: translateY(-2px);
+}
+.role-tabs button {
+  transition:
+    color 0.3s,
+    background 0.3s;
+}
+.role-tabs button:hover {
+  background: #ffffff08;
+}
+.mobile-nav:not([hidden]) {
+  transform-origin: top;
+  animation: mark-menu-open 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes mark-menu-open {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.team-card:hover h3 svg {
+  transform: translate(4px, -4px);
+}
+.team-card h3 svg {
+  transition: transform 0.35s;
+}
+@keyframes mark-photo-reveal {
+  from {
+    opacity: 0.25;
+    clip-path: inset(0 0 100% 0);
+    transform: scale(1.12);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+    transform: scale(1);
+  }
+}
+@keyframes mark-caption-reveal {
+  from {
+    opacity: 0;
+    translate: 0 25px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   html {
